@@ -10,13 +10,15 @@ namespace Bouncer
     class Player : Sprite
     {
         public double score;                         // Height Player has Achieved
-        public float t;
+        public bool hitBottom;
+        public bool hitTop;
+
 
         public Player()
         {
             this._position = new Vector2(50, 350);
             score = 0;
-            t = 0;
+            hitBottom = false; hitTop = false;
         }
 
         public override void Update(GameTime gameTime)
@@ -44,7 +46,6 @@ namespace Bouncer
             if (mCurrentState == SpriteState.Rolling)
             {
                 _speed.X = SPRITE_SPEED;
-                _velocity.Y = 0;
 
                 t = 0;
 
@@ -80,32 +81,32 @@ namespace Bouncer
 
             if (mCurrentState == SpriteState.Jumping)
             {
-                if (_velocity.Y <= 5f)
+                if (_velocity.Y <= 7.5f)
                 {
                     gravStrength = GRAVITY * t;
 
-                    _velocity.Y = -5f + gravStrength * t;
+                    _velocity.Y = -7.5f + gravStrength * t;
                 }
                 else
                 {
-                    _velocity.Y = 5.0f;
+                    _velocity.Y = 7.5f;
                 }
 
 
                 _position += _velocity;
                 t = t + this.timePassed;
-                _accel -= 0.01f;
 
-                if (_position.Y > _startingPosition.Y && _isTouching)
+                if (!NearlyEqual(_accel, 0.01f)) { _accel -= 0.01f; }
+                if(_accel < 0.01f)
                 {
-                    _position.Y = _startingPosition.Y;
+                    _accel = 0.01f;
+                }
+
+                if (_isTouching)
+                {
                     mCurrentState = SpriteState.Rolling;
-                    _velocity.Y = 0;
-                    t = 0;
                 }
             }
-
-            bounds.Y = (int)_position.Y;
         }
 
         /// <summary>
@@ -116,8 +117,7 @@ namespace Bouncer
             if (mCurrentState != SpriteState.Jumping)
             {
                 mCurrentState = SpriteState.Jumping;
-                _startingPosition = _position;
-                _isTouching = true;
+                _isTouching = false;
                 _speed.Y = 300.0f;
                 _direction.Y = 1;
             }
@@ -130,7 +130,7 @@ namespace Bouncer
         /// <param name="state">Current KeyboardState</param>
         private void CheckJump(KeyboardState state)
         {
-            if (mCurrentState == SpriteState.Rolling && !_isTouching)
+            if (mCurrentState == SpriteState.Rolling)
             {
                 if (state.IsKeyDown(Keys.Space) == true && mPrevKeyboardState.IsKeyDown(Keys.Space) == false)
                 {

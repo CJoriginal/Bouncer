@@ -43,10 +43,12 @@ namespace Bouncer
         public float timePassed;                    // Total Time Passed
         public bool _active;                        // Active?
         public bool _isTouching;                    // Is Sprite touching the ground / object?
-        public float _accel;                        //Acceleration of Sprite
-        public float gravStrength;                  //Gravitational Strength
+        public float _accel;                        // Acceleration of Sprite
+        public float gravStrength;                  // Gravitational Strength
+        public float t;
 
-        public Rectangle bounds;
+        public Rectangle bounds;                    // Collision Bounds
+        public Rectangle touchBoxPos;                 // Touched Box Pos
         
         public SpriteState mCurrentState;           // State of Sprite
         public KeyboardState mPrevKeyboardState;    // Previous KeyboardState
@@ -84,6 +86,8 @@ namespace Bouncer
 
             _accel = 0.1f;
 
+            t = 0;
+
             timePassed = 0;
 
             bounds = new Rectangle();
@@ -97,11 +101,20 @@ namespace Bouncer
         }
 
         public virtual void Update(GameTime gameTime)
-        {     
+        {
             timePassed = (float)gameTime.ElapsedGameTime.Milliseconds * 0.001f;
 
             /*Vector2 velocity = _direction * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;      //Vector-Base Movement
             _position += velocity;*/
+
+            if(_isTouching)
+            {
+                t = 0;
+            }
+            else
+            {
+                t = t + timePassed;
+            }
 
             if (_accel != 0.01f && mCurrentState == SpriteState.Rolling)                                  //Physics-based Movement i.e. acceleration, gravity
             {
@@ -115,7 +128,7 @@ namespace Bouncer
             }
             _velocity.X += _direction.X * _speed.X * _accel * timePassed;
 
-            if(NearlyEqual(_velocity.X, 5.0f))                                                          // Velocity Constraints
+            if (NearlyEqual(_velocity.X, 5.0f))                                                          // Velocity Constraints
             {
                 _velocity.X = 5.0f;
             }
@@ -125,9 +138,32 @@ namespace Bouncer
                 _velocity.X = -5.0f;
             }
 
-            _position.X += _velocity.X;
-            bounds.X = (int)_position.X;                                                                //Update Bounds
+            if ((touchBoxPos.X < _position.X || touchBoxPos.X + touchBoxPos.Width > _position.X) && mCurrentState == SpriteState.Rolling && _position.Y < 345.0f)
+            {
+                mCurrentState = SpriteState.Falling;
+            }
 
+            if (_position.Y > 345.0f)
+            {
+                _velocity.Y = 0;
+            }
+
+            if(mCurrentState == SpriteState.Falling)
+            {
+                _velocity.Y = GRAVITY * t;
+                t = t + timePassed;
+                if(_isTouching)
+                {
+                    mCurrentState = SpriteState.Rolling;
+                    t = 0;
+                }
+            }
+
+            _position.X += _velocity.X;
+            _position.Y += _velocity.Y;
+
+            bounds.X = (int)_position.X;                                                                //Update Bounds
+            bounds.Y = (int)_position.X;
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)     

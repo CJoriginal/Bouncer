@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 using Bouncer.AI;
 using Bouncer.Sprites;
+using Bouncer.Blocks;
 
 namespace Bouncer
 {
@@ -218,6 +219,7 @@ namespace Bouncer
                 gameState = GameState.GameOver;
             }
 
+
             foreach (Block b in blocks)
             {
                 if (b.GetBounds().Intersects(playerBounds))
@@ -228,10 +230,32 @@ namespace Bouncer
 
                     Rectangle boxBounds = b.GetBounds();
 
-                    if (boxBounds.Bottom > playerBounds.Bottom)                                                         // Hit the Bottom side
+                    if (player._position.Y == boxBounds.Top - playerBounds.Height)
+                    {
+                        player._position.Y = boxBounds.Top - playerBounds.Height;
+                    }
+
+                    if (b.ID == "Floor")
+                    {
+                        player.touchBoxPos = blocks.Find(b).Previous.Value.GetBounds();
+                    }
+                    else
+                    {
+                        player.touchBoxPos = boxBounds;
+                    }
+                    
+                    if (player._position.Y > 350.0f)
+                    {
+                        player._position.Y = 349.0f;
+                        player._isTouching = false;
+                    }
+
+                    if (playerBounds.Bottom > boxBounds.Top && player._position.Y < boxBounds.Top)                                                         // Hit the Bottom side
                     {
                         player.mCurrentState = Sprite.SpriteState.Rolling;
+
                         player._position.Y = boxBounds.Top - playerBounds.Height - 0.01f;
+                        player._velocity.Y = 0;
 
                         if (boxBounds.Left <= playerBounds.Right)                                                       // Hit the Left Side
                         {
@@ -244,7 +268,7 @@ namespace Bouncer
                     }
                     else if (boxBounds.Top < playerBounds.Top)                                                          // Hit the Top side
                     {
-                        player._direction.Y = -player._direction.Y;
+                        player._position.Y = boxBounds.Bottom + 10f;
 
                         if (boxBounds.Left <= playerBounds.Right)                                                       // Hit the Left Side
                         {
