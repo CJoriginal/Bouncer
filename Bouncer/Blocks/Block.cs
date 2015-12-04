@@ -25,6 +25,13 @@ namespace Bouncer
             get { return BlockTexture.Height; }
             set { }
         }
+        public Rectangle TriggerZone
+        {
+            get
+            {
+                return new Rectangle((int)Position.X, (int)Position.Y - Height, Width, Height);
+            }
+        }
 
         public virtual void Initialize(Texture2D texture, Vector2 position, float angle, string id)     // Initalise Player Variables
         {

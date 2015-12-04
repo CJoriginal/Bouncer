@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
+using Bouncer.Sprites;
+
 namespace Bouncer
 {
     /// <summary>
@@ -23,6 +25,7 @@ namespace Bouncer
         private int _worldHeight;
 
         public Rectangle view;                     // View of Box
+        public Texture2D box;
 
 
         public Camera(Viewport viewport, int worldWidth,
@@ -40,6 +43,11 @@ namespace Bouncer
             view.Height = viewport.Height;
         }
 
+        public void LoadDebugBox(Texture2D tex)
+        {
+            box = tex;
+        }
+
         public void Update(GameTime gameTime, Vector2 playerPosition)
         {
             if(Pos.Y > playerPosition.Y)
@@ -53,33 +61,46 @@ namespace Bouncer
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, SpriteFont font, double score, float time, Player player)
+        public void Draw(SpriteBatch spriteBatch, SpriteFont font, double score, float time, Player player, Enemy enemy)
         {
             string scoreText = "Score: " + score;
             string timeText = "Time: " + time;
 
-            Vector2 topRight = new Vector2( _pos.X + 550, _pos.Y - 400);
+            Vector2 topLeft = new Vector2(_pos.X, _pos.Y - 400);
+            Vector2 topRight = new Vector2( _pos.X + 500, _pos.Y - 400);
 
-            spriteBatch.DrawString(font, scoreText, topRight, Color.White);
-            spriteBatch.DrawString(font, timeText, new Vector2(topRight.X, topRight.Y + 30), Color.White);
+            spriteBatch.DrawString(font, scoreText, topRight, Color.ForestGreen);
+            spriteBatch.DrawString(font, timeText, new Vector2(topRight.X, topRight.Y + 30), Color.ForestGreen);
 
-            //Debug Stats
-            if (player.debugState == Sprite.DebugState.True)
+            if (player.debugState == Sprite.DebugState.True)                                                                                        // DEBUG INFORMATION
             {
-                spriteBatch.DrawString(font, "Debug", new Vector2(topRight.X, topRight.Y + 60), Color.Red);
+                spriteBatch.DrawString(font, "Player Debug", new Vector2(topRight.X, topRight.Y + 60), Color.Red);                                         // PLAYER DEBUG
                 spriteBatch.DrawString(font, "Player Pos: " + player._position, new Vector2(topRight.X - 50, topRight.Y + 90), Color.Red);
-                spriteBatch.DrawString(font, "Camera Pos: " + Pos, new Vector2(topRight.X - 50, topRight.Y + 120), Color.Red);
+                spriteBatch.DrawString(font, "Camera Pos: " + Pos, new Vector2(topRight.X, topRight.Y + 120), Color.Red);
                 spriteBatch.DrawString(font, "Accel: " + player._accel, new Vector2(topRight.X, topRight.Y + 150), Color.Red);
-                spriteBatch.DrawString(font, "Velocity: " + player._velocity, new Vector2(topRight.X - 50, topRight.Y + 180), Color.Red);
-                spriteBatch.DrawString(font, "Direction: " + player._direction, new Vector2(topRight.X - 50, topRight.Y + 210), Color.Red);
+                spriteBatch.DrawString(font, "Velocity: " + player._velocity, new Vector2(topRight.X, topRight.Y + 180), Color.Red);
+                spriteBatch.DrawString(font, "Direction: " + player._direction, new Vector2(topRight.X, topRight.Y + 210), Color.Red);
                 spriteBatch.DrawString(font, "Touching: " + player._isTouching, new Vector2(topRight.X, topRight.Y + 240), Color.Red);
                 spriteBatch.DrawString(font, "State: " + player.mCurrentState.ToString(), new Vector2(topRight.X, topRight.Y + 270), Color.Red);
                 spriteBatch.DrawString(font, "Gravity: " + player.gravStrength.ToString(), new Vector2(topRight.X, topRight.Y + 300), Color.Red);
                 spriteBatch.DrawString(font, "Time Passed: " + player.t.ToString(), new Vector2(topRight.X, topRight.Y + 330), Color.Red);
-                spriteBatch.DrawString(font, "Player Bounds Pos: " + player.bounds, new Vector2(topRight.X - 50, topRight.Y + 360), Color.Red);
-                spriteBatch.DrawString(font, "Box Pos: " + player.touchBoxPos, new Vector2(topRight.X - 50, topRight.Y + 390), Color.Red);
+                spriteBatch.DrawString(font, "Player Bounds Pos: " + player.bounds.Center, new Vector2(topRight.X, topRight.Y + 360), Color.Red);
+                spriteBatch.DrawString(font, "Box Pos: " + player.touchBoxPos, new Vector2(topRight.X, topRight.Y + 390), Color.Red);
                 spriteBatch.DrawString(font, "Hit Top?: " + player.hitTop, new Vector2(topRight.X, topRight.Y + 420), Color.Red);
                 spriteBatch.DrawString(font, "Hit Bottom?: " + player.hitBottom, new Vector2(topRight.X, topRight.Y + 450), Color.Red);
+                spriteBatch.DrawString(font, "Hit Top?: " + player.hitTop, new Vector2(topRight.X, topRight.Y + 420), Color.Red);
+                spriteBatch.DrawString(font, "Hit Bottom?: " + player.hitBottom, new Vector2(topRight.X, topRight.Y + 450), Color.Red);
+
+                spriteBatch.DrawString(font, "Enemy Debug", new Vector2(topLeft.X, topLeft.Y + 60), Color.DarkBlue);                                         // ENEMY DEBUG
+                spriteBatch.DrawString(font, "Enemy Pos: " + enemy._position, new Vector2(topLeft.X, topLeft.Y + 90), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Path Length: " + enemy.Path.Count, new Vector2(topLeft.X, topLeft.Y + 120), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Next Point: " + enemy.Path.First.Value, new Vector2(topLeft.X, topLeft.Y + 150), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Target: " + enemy.Path.Last.Value, new Vector2(topLeft.X, topLeft.Y + 180), Color.DarkBlue);
+
+                foreach (Vector2 p in enemy.Path)
+                {
+                    spriteBatch.Draw(box, new Rectangle((int)p.X, (int)p.Y, 10, 10), Color.Red);
+                }
             }
         }
 

@@ -16,6 +16,7 @@ namespace Bouncer
 
         public Player()
         {
+            //this._position = new Vector2(1550, 350);
             this._position = new Vector2(50, 350);
             score = 0;
             hitBottom = false; hitTop = false;

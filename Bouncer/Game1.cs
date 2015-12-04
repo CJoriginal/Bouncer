@@ -5,8 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-using Bouncer.AI;
 using Bouncer.Sprites;
+using Bouncer.AI;
 using Bouncer.Blocks;
 
 namespace Bouncer
@@ -26,11 +26,14 @@ namespace Bouncer
         SpriteBatch spriteBatch;
         SpriteFont  spriteFont;
         Player player;
+        Pathfinder finder;
         Enemy enemy;
         Camera camera;
         BlockManager blocks;
-        Pathfinder pathfinder;
+        LinkedList<Vector2> path;
         GameState gameState;
+
+        float updateTime = 0;
 
         public Game1()
         {
@@ -93,6 +96,12 @@ namespace Bouncer
             player.Initialize(Content.Load<Texture2D>("Graphics//Player"), spriteFont);
 
             enemy.Initialize(Content.Load<Texture2D>("Graphics//Enemy"), spriteFont);
+
+            camera.LoadDebugBox(Content.Load<Texture2D>("Graphics//Blue Block"));
+
+            finder = new Pathfinder(player._texture.Height, player._texture.Width);
+            path = finder.FindPath(player._position, enemy._position, blocks);
+            enemy.UpdatePath(path);
         }
 
         /// <summary>
@@ -127,8 +136,22 @@ namespace Bouncer
 
             if (gameState == GameState.Playing)
             {
+                if(updateTime > 5.0f)
+                {
+                    path = finder.FindPath(player._position, enemy._position, blocks);
+                    enemy.UpdatePath(path);
+                    updateTime = 0.0f;
+                }
+
                 player.Update(gameTime);
-                enemy.Update(gameTime, player._position);
+
+                if (gameTime.TotalGameTime.TotalSeconds > 5.0f)
+                {
+                    enemy.Update(gameTime);
+                    updateTime += gameTime.ElapsedGameTime.Seconds;
+                }
+
+                AdjustCamera();
 
                 camera.Update(gameTime, player._position);
 
@@ -140,7 +163,6 @@ namespace Bouncer
                 {
                     gameState = GameState.GameOver;
                 }
-
             }
             else
             {
@@ -161,7 +183,7 @@ namespace Bouncer
         {
             if (gameState == GameState.Playing)
             {
-                GraphicsDevice.Clear(Color.CornflowerBlue);
+                GraphicsDevice.Clear(Color.WhiteSmoke);
 
                 // TODO: Add your drawing code here
                 spriteBatch.Begin(SpriteSortMode.BackToFront,
@@ -172,7 +194,7 @@ namespace Bouncer
 
                 enemy.Draw(spriteBatch);
 
-                camera.Draw(spriteBatch, spriteFont, player.score, gameTime.TotalGameTime.Seconds, player);
+                camera.Draw(spriteBatch, spriteFont, player.score, gameTime.TotalGameTime.Seconds, player, enemy);
 
                 foreach (Block b in blocks)
                 {
@@ -209,12 +231,12 @@ namespace Bouncer
         /// </summary>
         private void CollisionDetection()
         {
-            Rectangle playerBounds = new Rectangle((int)player._position.X, (int)player._position.Y, player.Width/2, player.Height/2);
+            Rectangle playerBounds = new Rectangle((int)player._position.X, (int)player._position.Y, player.Width / 2, player.Height / 2);
             Rectangle enemyBounds = new Rectangle((int)enemy._position.X, (int)enemy._position.Y, enemy.Width / 2, enemy.Height / 2);
 
             int count = 0;
 
-            if(playerBounds.Intersects(enemyBounds))                                                                    // If Enemy Catches Player, Game Over
+            if (playerBounds.Intersects(enemyBounds))                                                                    // If Enemy Catches Player, Game Over
             {
                 gameState = GameState.GameOver;
             }
@@ -224,16 +246,13 @@ namespace Bouncer
             {
                 if (b.GetBounds().Intersects(playerBounds))
                 {
-                    player._isTouching = true;
                     player._touched = count;
                     b.Touch = true;
+                    player._isTouching = false;
+                    player._position.Y = b.Position;
+                    player.mCurrentState = Sprite.SpriteState.Rolling;
 
                     Rectangle boxBounds = b.GetBounds();
-
-                    if (player._position.Y == boxBounds.Top - playerBounds.Height)
-                    {
-                        player._position.Y = boxBounds.Top - playerBounds.Height;
-                    }
 
                     if (b.ID == "Floor")
                     {
@@ -243,7 +262,7 @@ namespace Bouncer
                     {
                         player.touchBoxPos = boxBounds;
                     }
-                    
+
                     if (player._position.Y > 350.0f)
                     {
                         player._position.Y = 349.0f;
@@ -293,9 +312,32 @@ namespace Bouncer
 
                     Rectangle boxBounds = b.GetBounds();
 
-                    if (boxBounds.Bottom > enemyBounds.Bottom)                                                         // Hit the Bottom side
+                    if (enemy._position.Y == boxBounds.Top - enemyBounds.Height)
+                    {
+                        enemy._position.Y = boxBounds.Top - enemyBounds.Height;
+                    }
+
+                    if (b.ID == "Floor")
+                    {
+                        enemy.touchBoxPos = blocks.Find(b).Previous.Value.GetBounds();
+                    }
+                    else
+                    {
+                        enemy.touchBoxPos = boxBounds;
+                    }
+
+                    if (enemy._position.Y > 350.0f)
+                    {
+                        enemy._position.Y = 349.0f;
+                        enemy._isTouching = false;
+                    }
+
+                    if (enemyBounds.Bottom > boxBounds.Top && enemy._position.Y < boxBounds.Top)                                                         // Hit the Bottom side
                     {
                         enemy.mCurrentState = Sprite.SpriteState.Rolling;
+
+                        enemy._position.Y = boxBounds.Top - enemyBounds.Height - 0.01f;
+                        enemy._velocity.Y = 0;
 
                         if (boxBounds.Left <= enemyBounds.Right)                                                       // Hit the Left Side
                         {
@@ -308,7 +350,7 @@ namespace Bouncer
                     }
                     else if (boxBounds.Top < enemyBounds.Top)                                                          // Hit the Top side
                     {
-                        enemy._direction.Y = -enemy._direction.Y;
+                        enemy._position.Y = boxBounds.Bottom + 10f;
 
                         if (boxBounds.Left <= enemyBounds.Right)                                                       // Hit the Left Side
                         {
@@ -333,23 +375,51 @@ namespace Bouncer
                 Block x = blocks.ElementAt(player._touched);
                 Rectangle rect = x.GetBounds();
 
-                if(!playerBounds.Intersects(rect))
+                if (!playerBounds.Intersects(rect))
                 {
                     player._isTouching = false;
                     x.Touch = false;
                 }
             }
-            /*if (enemy.isTouching)
+            if (enemy._isTouching)
             {
-                Block x = blocks.ElementAt(enemy.mTouched);
+                Block x = blocks.ElementAt(enemy._touched);
                 Rectangle rect = x.GetBounds();
 
                 if (!enemyBounds.Intersects(rect))
                 {
-                    enemy.isTouching = false;
+                    enemy._isTouching = false;
                     x.Touch = false;
                 }
-            }*/
+            }
+        }
+
+        private void AdjustCamera()
+        {
+            float distance = Math.Abs(player._position.Y - enemy._position.Y);
+
+            if(distance > 100)
+            {
+                if (camera.Zoom != 0.1f)
+                {
+                    camera.Zoom -= 0.05f;
+                }
+                else
+                {
+                    camera.Zoom = 0.1f;
+                }
+            }
+            else
+            {
+                if (camera.Zoom != 0.5f)
+                {
+                    camera.Zoom += 0.05f;
+                }
+                else
+                {
+                    camera.Zoom = 0.5f;
+                }
+            }
         }
 
         /// <summary>

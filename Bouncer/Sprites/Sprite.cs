@@ -163,7 +163,7 @@ namespace Bouncer
             _position.Y += _velocity.Y;
 
             bounds.X = (int)_position.X;                                                                //Update Bounds
-            bounds.Y = (int)_position.X;
+            bounds.Y = (int)_position.Y;
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)     

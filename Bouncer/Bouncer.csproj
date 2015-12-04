@@ -38,8 +38,8 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AI\Node.cs" />
     <Compile Include="AI\Pathfinder.cs" />
-    <Compile Include="AI\SearchNode.cs" />
     <Compile Include="BlockManager.cs" />
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\Floor.cs" />
