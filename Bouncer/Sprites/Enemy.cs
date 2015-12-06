@@ -11,8 +11,13 @@ namespace Bouncer.Sprites
     /// </summary>
     class Enemy: Sprite
     {
-        LinkedList<Vector2> path;
+        public LinkedList<Vector2> path;
+        Vector2 curPoint;
         Vector2 nextPoint;
+        public int movement;
+        private bool foundNode;
+        public float time;
+        private float jumpLimit;
 
         public LinkedList<Vector2> Path
         {
@@ -24,26 +29,59 @@ namespace Bouncer.Sprites
             //this._position = new Vector2(50, 350);
             this._position = new Vector2(1550, 350);
             path = new LinkedList<Vector2>();
-
-        }
-
-        public void UpdatePath(LinkedList<Vector2> astar)
-        {
-            path = astar;
-            nextPoint = Path.First.Value;
+            foundNode = true;
+            jumpLimit = 0;
+            time = 0;
         }
 
         public override void Update(GameTime gameTime)
         {
-            if(_position.X .Equals(nextPoint.X))
-            {
-                nextPoint = Path.First.Next.Value;
-                Path.RemoveFirst();
-            }
+            time += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             Movement(gameTime);
 
+            CheckPath();
+            CheckJump();
+
+            if(jumpLimit > 0.0f)
+            {
+                jumpLimit -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            else
+            {
+                jumpLimit = 0;
+            }
+
             base.Update(gameTime);
+        }
+
+        private void CheckPath()
+        {
+            curPoint = Path.First.Value;
+            if (Path.First.Next != null) nextPoint = Path.First.Next.Value;
+
+            if (curPoint.X < _position.X && foundNode)
+            {
+                movement = MOVE_LEFT;
+                foundNode = false;
+            }
+
+            if (curPoint.X > _position.X && foundNode)
+            {
+                movement = MOVE_RIGHT;
+                foundNode = false;
+            }
+
+            if (movement == MOVE_LEFT && _position.X < curPoint.X)
+            {
+                Path.RemoveFirst();
+                foundNode = true;
+            }
+            else if (movement == MOVE_RIGHT && _position.X > curPoint.X)
+            {
+                Path.RemoveFirst();
+                foundNode = true;
+            }
         }
 
         /// <summary>
@@ -61,8 +99,8 @@ namespace Bouncer.Sprites
                 _speed.X = SPRITE_SPEED;
 
                 t = 0;
-                
-                if (nextPoint.X < _position.X)
+
+                if (curPoint.X < _position.X)
                 {
                     _direction = Vector2.Zero;
                     _direction.X = MOVE_LEFT;
@@ -90,34 +128,32 @@ namespace Bouncer.Sprites
                         _accel = 1.0f;
                     }
                 }
-
-                if (mCurrentState == SpriteState.Jumping)
+            }
+            if (mCurrentState == SpriteState.Jumping)
+            {
+                if (_velocity.Y <= 7.5f)
                 {
-                    if (_velocity.Y <= 7.5f)
-                    {
-                        gravStrength = GRAVITY * t;
+                    gravStrength = GRAVITY * t;
 
-                        _velocity.Y = -7.5f + gravStrength * t;
-                    }
-                    else
-                    {
-                        _velocity.Y = 7.5f;
-                    }
+                    _velocity.Y = -7.5f + gravStrength * t;
+                }
+                else
+                {
+                    _velocity.Y = 7.5f;
+                }
 
+                _position.Y += _velocity.Y;
+                t = t + this.timePassed;
 
-                    _position += _velocity;
-                    t = t + this.timePassed;
+                if (!NearlyEqual(_accel, 0.01f)) { _accel -= 0.01f; }
+                if (_accel < 0.01f)
+                {
+                    _accel = 0.01f;
+                }
 
-                    if (!NearlyEqual(_accel, 0.01f)) { _accel -= 0.01f; }
-                    if (_accel < 0.01f)
-                    {
-                        _accel = 0.01f;
-                    }
-
-                    if (_isTouching)
-                    {
-                        mCurrentState = SpriteState.Rolling;
-                    }
+                if (_isTouching)
+                {
+                    mCurrentState = SpriteState.Rolling;
                 }
             }
         }
@@ -133,6 +169,7 @@ namespace Bouncer.Sprites
                 _isTouching = false;
                 _speed.Y = 300.0f;
                 _direction.Y = 1;
+                jumpLimit = 2.0f;
             }
         }
 
@@ -143,9 +180,11 @@ namespace Bouncer.Sprites
         /// <param name="state">Current KeyboardState</param>
         private void CheckJump()
         {
+            float distance = Math.Abs(_position.X - curPoint.X);
+
             if (mCurrentState == SpriteState.Rolling)
             {
-                if (nextPoint.Y < _position.Y)
+                if (_position.Y > curPoint.Y && distance < 150.0f && jumpLimit <= 0.0f)
                 {
                     Jump();
                 }

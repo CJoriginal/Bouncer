@@ -10,7 +10,7 @@ namespace Bouncer
     /// </summary>
     class Sprite
     {
-        public const int SPRITE_SPEED = 5;
+        public const int SPRITE_SPEED = 3;
         public const int MOVE_LEFT = -1;
         public const int MOVE_RIGHT = 1;
         public const float GRAVITY = 9.8f;
@@ -48,8 +48,8 @@ namespace Bouncer
         public float t;
 
         public Rectangle bounds;                    // Collision Bounds
-        public Rectangle touchBoxPos;                 // Touched Box Pos
-        
+        public Rectangle touchBoxPos;               // Touched Box Pos
+
         public SpriteState mCurrentState;           // State of Sprite
         public KeyboardState mPrevKeyboardState;    // Previous KeyboardState
         public DebugState debugState = DebugState.False;    // Debug State
@@ -62,6 +62,11 @@ namespace Bouncer
         public int Height                           // Height of Sprite
         {
             get { return _texture.Height; }
+        }
+
+        public Vector2 Origin
+        {
+            get { return new Vector2(_position.X + Width / 2, _position.Y + Height / 2); }
         }
 
         public virtual void Initialize(Texture2D texture, SpriteFont font)     // Initalise Player Variables
@@ -123,29 +128,26 @@ namespace Bouncer
                 if (NearlyEqual(_accel, 0.01f))
                 {
                     _accel = 0.01f;
-                    _velocity.X = 0;
                 }
             }
-            _velocity.X += _direction.X * _speed.X * _accel * timePassed;
 
-            if (NearlyEqual(_velocity.X, 5.0f))                                                          // Velocity Constraints
+
+            if (_velocity.X > 2.6f)
             {
-                _velocity.X = 5.0f;
+                _velocity.X -= 0.1f;
+            }
+            else if(_velocity.X < -2.6f)
+            {
+                _velocity.X += 0.1f;
+            }
+            else
+            {
+                _velocity.X += _direction.X * _speed.X * _accel * timePassed;
             }
 
-            if (NearlyEqual(_velocity.X, -5.0f))
-            {
-                _velocity.X = -5.0f;
-            }
-
-            if ((touchBoxPos.X < _position.X || touchBoxPos.X + touchBoxPos.Width > _position.X) && mCurrentState == SpriteState.Rolling && _position.Y < 345.0f)
+            if ((touchBoxPos.X > _position.X || touchBoxPos.X + touchBoxPos.Width < _position.X) && mCurrentState == SpriteState.Rolling && _position.Y < 345.0f)
             {
                 mCurrentState = SpriteState.Falling;
-            }
-
-            if (_position.Y > 345.0f)
-            {
-                _velocity.Y = 0;
             }
 
             if(mCurrentState == SpriteState.Falling)
@@ -181,6 +183,9 @@ namespace Bouncer
 
             spriteBatch.Draw(_texture, _position, null, Color.White, _rotation, _origin, 1f,
                 SpriteEffects.None, 0f);
+            spriteBatch.Draw(_texture, new Vector2(bounds.X, bounds.Bottom), null, Color.ForestGreen, _rotation, _origin, 1f,
+                SpriteEffects.None, 0f);
+
         }
 
         /// <summary>

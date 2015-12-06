@@ -16,6 +16,7 @@ namespace Bouncer
 
         public Player()
         {
+            //this._position = new Vector2(250, -50);
             //this._position = new Vector2(1550, 350);
             this._position = new Vector2(50, 350);
             score = 0;
@@ -52,6 +53,7 @@ namespace Bouncer
 
                 if (state.IsKeyDown(Keys.A))
                 {
+
                     _direction = Vector2.Zero;
                     _direction.X = MOVE_LEFT;
                     _rotation += 10.0f;

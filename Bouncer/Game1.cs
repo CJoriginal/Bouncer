@@ -30,10 +30,10 @@ namespace Bouncer
         Enemy enemy;
         Camera camera;
         BlockManager blocks;
-        LinkedList<Vector2> path;
+        Block tarBlock;
         GameState gameState;
 
-        float updateTime = 0;
+
 
         public Game1()
         {
@@ -64,8 +64,6 @@ namespace Bouncer
 
             blocks = new BlockManager(GraphicsDevice.Viewport.X,
                                         GraphicsDevice.Viewport.X + GraphicsDevice.Viewport.Width);
-
-            graphics.ToggleFullScreen();
 
             gameState = GameState.Playing;
 
@@ -99,9 +97,11 @@ namespace Bouncer
 
             camera.LoadDebugBox(Content.Load<Texture2D>("Graphics//Blue Block"));
 
+            tarBlock = blocks.Last.Previous.Value;
+
             finder = new Pathfinder(player._texture.Height, player._texture.Width);
-            path = finder.FindPath(player._position, enemy._position, blocks);
-            enemy.UpdatePath(path);
+            enemy.path = finder.FindPath(enemy._position, blocks.nextBlock, blocks);
+            finder = null;
         }
 
         /// <summary>
@@ -136,19 +136,18 @@ namespace Bouncer
 
             if (gameState == GameState.Playing)
             {
-                if(updateTime > 5.0f)
-                {
-                    path = finder.FindPath(player._position, enemy._position, blocks);
-                    enemy.UpdatePath(path);
-                    updateTime = 0.0f;
-                }
-
                 player.Update(gameTime);
 
                 if (gameTime.TotalGameTime.TotalSeconds > 5.0f)
                 {
+                    if (enemy.time > 8.0f || enemy.Path.Count == 0)
+                    {
+                        finder = new Pathfinder(player._texture.Height, player._texture.Width);
+                        enemy.path = finder.FindPath(enemy._position, blocks.nextBlock, blocks);
+                        finder = null;
+                        enemy.time = 0;
+                    }
                     enemy.Update(gameTime);
-                    updateTime += gameTime.ElapsedGameTime.Seconds;
                 }
 
                 AdjustCamera();
@@ -249,7 +248,6 @@ namespace Bouncer
                     player._touched = count;
                     b.Touch = true;
                     player._isTouching = false;
-                    player._position.Y = b.Position;
                     player.mCurrentState = Sprite.SpriteState.Rolling;
 
                     Rectangle boxBounds = b.GetBounds();
@@ -267,6 +265,11 @@ namespace Bouncer
                     {
                         player._position.Y = 349.0f;
                         player._isTouching = false;
+                    }
+
+                    if(player._position.Y < 350.0f && b.TriggerZone.Contains(playerBounds))
+                    {
+                        player.mCurrentState = Sprite.SpriteState.Rolling;
                     }
 
                     if (playerBounds.Bottom > boxBounds.Top && player._position.Y < boxBounds.Top)                                                         // Hit the Bottom side
@@ -306,16 +309,12 @@ namespace Bouncer
 
                 if (b.GetBounds().Intersects(enemyBounds))
                 {
-                    enemy._isTouching = true;
                     enemy._touched = count;
                     b.Touch = true;
+                    enemy._isTouching = false;
+                    enemy.mCurrentState = Sprite.SpriteState.Rolling;
 
                     Rectangle boxBounds = b.GetBounds();
-
-                    if (enemy._position.Y == boxBounds.Top - enemyBounds.Height)
-                    {
-                        enemy._position.Y = boxBounds.Top - enemyBounds.Height;
-                    }
 
                     if (b.ID == "Floor")
                     {
@@ -330,6 +329,11 @@ namespace Bouncer
                     {
                         enemy._position.Y = 349.0f;
                         enemy._isTouching = false;
+                    }
+
+                    if (enemy._position.Y < 350.0f && b.TriggerZone.Contains(enemyBounds))
+                    {
+                        enemy.mCurrentState = Sprite.SpriteState.Rolling;
                     }
 
                     if (enemyBounds.Bottom > boxBounds.Top && enemy._position.Y < boxBounds.Top)                                                         // Hit the Bottom side

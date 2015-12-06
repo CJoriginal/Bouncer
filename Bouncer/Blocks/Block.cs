@@ -27,10 +27,7 @@ namespace Bouncer
         }
         public Rectangle TriggerZone
         {
-            get
-            {
-                return new Rectangle((int)Position.X, (int)Position.Y - Height, Width, Height);
-            }
+            get { return new Rectangle((int)Position.X, (int)Position.Y - 100, Width, 100); }
         }
 
         public virtual void Initialize(Texture2D texture, Vector2 position, float angle, string id)     // Initalise Player Variables
@@ -48,24 +45,10 @@ namespace Bouncer
             ID = id;
         }
 
-        public virtual void Update(GameTime gameTime)
-        {
-            
-        }
-
         public virtual void Draw(SpriteBatch spriteBatch)      // Draw onto screen
         {
-            if (!Touch)
-            {
-                spriteBatch.Draw(BlockTexture, Position, null, Color.White, Angle, Vector2.Zero, 1f,
-                    SpriteEffects.None, 0f);
-            }
-            else
-            {
-                spriteBatch.Draw(BlockTexture, Position, null, Color.Red, Angle, Vector2.Zero, 1f,
+            spriteBatch.Draw(BlockTexture, Position, null, Color.White, Angle, Vector2.Zero, 1f,
                 SpriteEffects.None, 0f);
-            }
-
         }
 
         /// <summary>

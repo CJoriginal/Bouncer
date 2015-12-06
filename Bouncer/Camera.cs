@@ -50,7 +50,7 @@ namespace Bouncer
 
         public void Update(GameTime gameTime, Vector2 playerPosition)
         {
-            if(Pos.Y > playerPosition.Y)
+            if(view.Y > playerPosition.Y)
             {
                 Vector2 movement = new Vector2(0, -1) * 100.0f * (float)gameTime.ElapsedGameTime.TotalSeconds;              // Update view positon based on player position
 
@@ -94,8 +94,10 @@ namespace Bouncer
                 spriteBatch.DrawString(font, "Enemy Debug", new Vector2(topLeft.X, topLeft.Y + 60), Color.DarkBlue);                                         // ENEMY DEBUG
                 spriteBatch.DrawString(font, "Enemy Pos: " + enemy._position, new Vector2(topLeft.X, topLeft.Y + 90), Color.DarkBlue);
                 spriteBatch.DrawString(font, "Path Length: " + enemy.Path.Count, new Vector2(topLeft.X, topLeft.Y + 120), Color.DarkBlue);
-                spriteBatch.DrawString(font, "Next Point: " + enemy.Path.First.Value, new Vector2(topLeft.X, topLeft.Y + 150), Color.DarkBlue);
-                spriteBatch.DrawString(font, "Target: " + enemy.Path.Last.Value, new Vector2(topLeft.X, topLeft.Y + 180), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Status: " + enemy.mCurrentState.ToString(), new Vector2(topLeft.X, topLeft.Y + 150), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Velocity: " + enemy._velocity, new Vector2(topLeft.X, topLeft.Y + 180), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Direction: " + enemy._direction, new Vector2(topLeft.X, topLeft.Y + 210), Color.DarkBlue);
+                spriteBatch.DrawString(font, "Speed: " + enemy._speed, new Vector2(topLeft.X, topLeft.Y + 240), Color.DarkBlue);
 
                 foreach (Vector2 p in enemy.Path)
                 {

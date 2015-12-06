@@ -37,7 +37,7 @@ namespace Bouncer.AI
             openList = new List<Node>();
             closedList = new List<Node>();
 
-            Height = height / 2;
+            Height = height;
             Width = width / 2;
 
             g = 0;
@@ -77,9 +77,9 @@ namespace Bouncer.AI
                     break;
                 }
 
-                var adjacentNodes = GetWalkableAdjacentNodes(current.Position.X, current.Position.Y, blocks);      // Get Walkable Nodes
+                List<Node> adjacentNodes = GetWalkableAdjacentNodes(current.Position.X, current.Position.Y, blocks);      // Get Walkable Nodes
 
-                foreach (var adjacentNode in adjacentNodes)
+                foreach (Node adjacentNode in adjacentNodes)
                 {
                     if (closedList.FirstOrDefault(l => l.Position.X == adjacentNode.Position.X                  // If Adj Node is in the Closed List, Ignore It
                             && l.Position.Y == adjacentNode.Position.Y) != null)
@@ -107,12 +107,18 @@ namespace Bouncer.AI
                 }
             }
 
-            LinkedList<Vector2> path = new LinkedList<Vector2>();                                                           // Place the path into a List of Vector2s
+            LinkedList<Vector2> path = new LinkedList<Vector2>();                                               // Place the path into a List of Vector2s
 
-            foreach(Node n in openList)
+            foreach(Node n in closedList)
             {
                 path.AddLast(n.Position);
             }
+
+            openList.Clear();
+            closedList.Clear();
+
+            startPos = Vector2.Zero;
+            targetPos = Vector2.Zero;
 
             return path;
         }
@@ -133,23 +139,25 @@ namespace Bouncer.AI
         {
             List<Node> confirmedNodes = new List<Node>();
 
-            foreach(Block b in blocks)
+            foreach (Node n in nodes)
             {
-                foreach(Node n in nodes)
+                foreach (Block b in blocks)
                 {
-                    if(b.GetBounds().Contains(n.Position))
+                    if(confirmedNodes.Count != 0)
                     {
-                        confirmedNodes.Add(n); 
+                        break;
+                    }
+                    if(b.TriggerZone.X < n.Position.X && b.TriggerZone.Right > n.Position.X)
+                    {
+                        if (b.TriggerZone.Y < n.Position.Y && b.TriggerZone.Bottom > n.Position.Y)
+                        {
+                            confirmedNodes.Add(n);
+                        }
                     }
                 }
             }
 
-            foreach(Node n in confirmedNodes)
-            {
-                nodes.Remove(n);
-            }
-
-            return nodes;
+            return confirmedNodes;
         }
 
         /// <summary>
@@ -161,15 +169,15 @@ namespace Bouncer.AI
         /// <returns>List of Adjacent Nodes</returns>
         private List<Node> GetWalkableAdjacentNodes(float x, float y, BlockManager blocks)
         {
-            var proposedLocations = new List<Node>()
+            List<Node> proposedLocations = new List<Node>()
             {
-                new Node(new Vector2(x, y - Height)),       // Top Node
-                new Node(new Vector2(x, y + Height)),       // Bottom Node
-                new Node(new Vector2(x - Width, y)),        // Left Node
-                new Node(new Vector2(x + Width, y)),        // Right Node
+                new Node(new Vector2(x - 350, y - 200.0f )),       // Top Left
+                new Node(new Vector2(x + 350, y - 200.0f )),       // Top Right
+                new Node(new Vector2(x - Width, y)),            // Left Node
+                new Node(new Vector2(x + Width, y)),            // Right Node
+                new Node(new Vector2(x - 270, y + 200.0f )),       // Top Left
+                new Node(new Vector2(x + 270, y + 200.0f )),       // Top Right
             };
-
-
 
             return IsContained(proposedLocations, blocks);
         }

@@ -23,6 +23,11 @@ namespace Bouncer
 
         private float[] xLoc = {150.0f, 300.0f, 450.0f, 600.0f, 750.0f, 900.0f, 1050.0f};
 
+        public Vector2 nextBlock
+        {
+            get { return this.First.Value.TriggerZone.Location.ToVector2() ; }
+        }
+
         public BlockManager(float leftSide, float rightSide)
         {
             _Left = leftSide;
@@ -108,7 +113,7 @@ namespace Bouncer
         {
             Block b = this.Last();                                              // Grab Bottom Block
 
-            if(b.Position.Y > viewBottom)                                       // If the Block is below the view space, remove and replace
+            if(b.Position.Y > viewBottom + 100.0f)                                       // If the Block is below the view space, remove and replace
             {
                 Block prev = this.First();                                      // Grab the previous block
 
