@@ -84,7 +84,7 @@ namespace Bouncer
                 spriteBatch.DrawString(font, "State: " + player.mCurrentState.ToString(), new Vector2(topRight.X, topRight.Y + 270), Color.Red);
                 spriteBatch.DrawString(font, "Gravity: " + player.gravStrength.ToString(), new Vector2(topRight.X, topRight.Y + 300), Color.Red);
                 spriteBatch.DrawString(font, "Time Passed: " + player.t.ToString(), new Vector2(topRight.X, topRight.Y + 330), Color.Red);
-                spriteBatch.DrawString(font, "Player Bounds Pos: " + player.bounds.Center, new Vector2(topRight.X, topRight.Y + 360), Color.Red);
+                spriteBatch.DrawString(font, "Player Bounds Pos: " + player.Bounds.Center, new Vector2(topRight.X, topRight.Y + 360), Color.Red);
                 spriteBatch.DrawString(font, "Box Pos: " + player.touchBoxPos, new Vector2(topRight.X, topRight.Y + 390), Color.Red);
                 spriteBatch.DrawString(font, "Hit Top?: " + player.hitTop, new Vector2(topRight.X, topRight.Y + 420), Color.Red);
                 spriteBatch.DrawString(font, "Hit Bottom?: " + player.hitBottom, new Vector2(topRight.X, topRight.Y + 450), Color.Red);

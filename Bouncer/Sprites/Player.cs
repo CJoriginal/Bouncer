@@ -13,11 +13,8 @@ namespace Bouncer
         public bool hitBottom;
         public bool hitTop;
 
-
         public Player()
         {
-            //this._position = new Vector2(250, -50);
-            //this._position = new Vector2(1550, 350);
             this._position = new Vector2(50, 350);
             score = 0;
             hitBottom = false; hitTop = false;
@@ -39,9 +36,6 @@ namespace Bouncer
 
         /// <summary>
         /// Controls Player Movement
-        /// TODO:
-        /// 1. Fine Tune Velocity / Friction
-        /// 2. Improve Gravitational Influence i.e no autosnapping
         /// </summary>
         private void Movement(GameTime gameTime, KeyboardState state)
         {
@@ -99,45 +93,15 @@ namespace Bouncer
                 _position += _velocity;
                 t = t + this.timePassed;
 
-                if (!NearlyEqual(_accel, 0.01f)) { _accel -= 0.01f; }
+                if (!NearlyEqual(_accel, 0.01f)) { _accel -= FRICTION; }
                 if(_accel < 0.01f)
                 {
-                    _accel = 0.01f;
+                    _accel = FRICTION;
                 }
 
                 if (_isTouching)
                 {
                     mCurrentState = SpriteState.Rolling;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Perform a 'Jump' of the Player
-        /// </summary>
-        private void Jump()
-        {
-            if (mCurrentState != SpriteState.Jumping)
-            {
-                mCurrentState = SpriteState.Jumping;
-                _isTouching = false;
-                _speed.Y = 300.0f;
-                _direction.Y = 1;
-            }
-        }
-
-        /// <summary>
-        /// Calculate the jumping of the player based on the previous
-        /// KeyboardState.
-        /// </summary>
-        /// <param name="state">Current KeyboardState</param>
-        private void CheckJump(KeyboardState state)
-        {
-            if (mCurrentState == SpriteState.Rolling)
-            {
-                if (state.IsKeyDown(Keys.Space) == true && mPrevKeyboardState.IsKeyDown(Keys.Space) == false)
-                {
-                    Jump();
                 }
             }
         }

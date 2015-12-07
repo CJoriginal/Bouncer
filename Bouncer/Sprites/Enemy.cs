@@ -26,7 +26,6 @@ namespace Bouncer.Sprites
 
         public Enemy()
         {
-            //this._position = new Vector2(50, 350);
             this._position = new Vector2(1550, 350);
             path = new LinkedList<Vector2>();
             foundNode = true;
@@ -157,7 +156,7 @@ namespace Bouncer.Sprites
         }
 
         /// <summary>
-        /// Perform a 'Jump' of the Player
+        /// Perform a 'Jump'
         /// </summary>
         private void Jump()
         {
@@ -165,7 +164,7 @@ namespace Bouncer.Sprites
             {
                 mCurrentState = SpriteState.Jumping;
                 _isTouching = false;
-                _speed.Y = 300.0f;
+                _speed.Y = MASS;
                 _direction.Y = 1;
                 jumpLimit = 2.0f;
             }

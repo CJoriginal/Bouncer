@@ -34,8 +34,6 @@ namespace Bouncer
         Block tarBlock;
         GameState gameState;
 
-
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -203,6 +201,20 @@ namespace Bouncer
                     b.Draw(spriteBatch);
                 }
 
+                if(gameTime.TotalGameTime.TotalSeconds < 5.0f && gameTime.TotalGameTime.TotalSeconds > 1.0f)
+                {
+                    if(gameTime.TotalGameTime.TotalSeconds < 3.0f)
+                    {
+                        spriteBatch.DrawString(spriteFont, "You can't catch me!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                        spriteBatch.DrawString(spriteFont, "Hmm ... what?", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(spriteFont, "Mwahaha!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                        spriteBatch.DrawString(spriteFont, "Oh ... ok ...", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
+                    }
+                }
+
                 spriteBatch.End();
             }
             else if(gameState == GameState.GameOver)
@@ -241,177 +253,90 @@ namespace Bouncer
 
         /// <summary>
         /// This function is responsible for all collision detection between the Player and Blocks.
-        /// 
-        /// To-do:
-        /// 
-        /// 1. Change from Bounding box to more accurate system.
         /// </summary>
         private void CollisionDetection()
         {
-            Rectangle playerBounds = new Rectangle((int)player._position.X, (int)player._position.Y, player.Width / 2, player.Height / 2);
-            Rectangle enemyBounds = new Rectangle((int)enemy._position.X, (int)enemy._position.Y, enemy.Width / 2, enemy.Height / 2);
+            List<Sprite> sprites = new List<Sprite>();
+
+            sprites.Add(player);
+            sprites.Add(enemy);
 
             int count = 0;
 
-            if (playerBounds.Intersects(enemyBounds))                                                                    // If Enemy Catches Player, Game Over
+            if (player.Bounds.Intersects(enemy.Bounds))                                                                    // If Enemy Catches Player, Game Over
             {
                 gameState = GameState.GameOver;
             }
 
-
-            foreach (Block b in blocks)
+            foreach (Sprite sprite in sprites)
             {
-                if (b.GetBounds().Intersects(playerBounds))
+                foreach (Block b in blocks)
                 {
-                    player._touched = count;
-                    b.Touch = true;
-                    player._isTouching = false;
-                    player.mCurrentState = Sprite.SpriteState.Rolling;
-
-                    Rectangle boxBounds = b.GetBounds();
-
-                    if (b.ID == "Floor")
+                    if (b.GetBounds().Intersects(sprite.Bounds))
                     {
-                        player.touchBoxPos = blocks.Find(b).Previous.Value.GetBounds();
+                        sprite._touched = count;
+                        b.Touch = true;
+                        sprite._isTouching = false;
+                        sprite.mCurrentState = Sprite.SpriteState.Rolling;
+
+                        Rectangle boxBounds = b.GetBounds();
+
+                        if (b.ID != "Floor")
+                        {
+                            sprite.touchBoxPos = boxBounds;
+                        }
+
+                        if (sprite._position.Y > 350.0f && b.GetType() != typeof(Floor)) 
+                        {
+                            sprite._position.Y = 349.0f;
+                            sprite._isTouching = false;
+                        }
+
+                        if (sprite.Bounds.Bottom > boxBounds.Top && sprite._position.Y < boxBounds.Top)                      // Hit the Bottom side
+                        {
+                            sprite._position.Y = boxBounds.Top - sprite.Bounds.Height - 0.01f;
+                            sprite._velocity.Y = 0;
+
+                            if (boxBounds.Left <= sprite.Bounds.Right)                                                       // Hit the Left Side
+                            {
+                                sprite._direction.X = -sprite._direction.X;
+                            }
+                            else if (boxBounds.Right >= sprite.Bounds.Left)                                                  // Hit the Right Side
+                            {
+                                sprite._direction.X = -sprite._direction.X;
+                            }
+                        }
+                        else if (boxBounds.Top < sprite.Bounds.Top)                                                          // Hit the Top side
+                        {
+                            sprite.mCurrentState = Sprite.SpriteState.Falling;
+
+                            if (boxBounds.Left <= sprite.Bounds.Right)                                                       // Hit the Left Side
+                            {
+                                sprite._direction.X = -sprite._direction.X;
+                            }
+                            else if (boxBounds.Right >= sprite.Bounds.Left)                                                  // Hit the Right Side
+                            {
+                                sprite._direction.X = -sprite._direction.X;
+                            }
+                        }
                     }
                     else
                     {
-                        player.touchBoxPos = boxBounds;
+                        b.Touch = false;
                     }
 
-                    if (player._position.Y > 350.0f)
+
+                    if (sprite._isTouching)
                     {
-                        player._position.Y = 349.0f;
-                        player._isTouching = false;
-                    }
+                        Block x = blocks.ElementAt(sprite._touched);
+                        Rectangle rect = x.GetBounds();
 
-                    if(player._position.Y < 350.0f && b.TriggerZone.Contains(playerBounds))
-                    {
-                        player.mCurrentState = Sprite.SpriteState.Rolling;
-                    }
-
-                    if (playerBounds.Bottom > boxBounds.Top && player._position.Y < boxBounds.Top)                                                         // Hit the Bottom side
-                    {
-                        player.mCurrentState = Sprite.SpriteState.Rolling;
-
-                        player._position.Y = boxBounds.Top - playerBounds.Height - 0.01f;
-                        player._velocity.Y = 0;
-
-                        if (boxBounds.Left <= playerBounds.Right)                                                       // Hit the Left Side
+                        if (!sprite.Bounds.Intersects(rect))
                         {
-                            player._direction.X = -player._direction.X;
-                        }
-                        else if (boxBounds.Right >= playerBounds.Left)                                                  // Hit the Right Side
-                        {
-                            player._direction.X = -player._direction.X;
+                            sprite._isTouching = false;
+                            x.Touch = false;
                         }
                     }
-                    else if (boxBounds.Top < playerBounds.Top)                                                          // Hit the Top side
-                    {
-                        player._position.Y = boxBounds.Bottom + 10f;
-
-                        if (boxBounds.Left <= playerBounds.Right)                                                       // Hit the Left Side
-                        {
-                            player._direction.X = -player._direction.X;
-                        }
-                        else if (boxBounds.Right >= playerBounds.Left)                                                  // Hit the Right Side
-                        {
-                            player._direction.X = -player._direction.X;
-                        }
-                    }
-                }
-                else
-                {
-                    b.Touch = false;
-                }
-
-                if (b.GetBounds().Intersects(enemyBounds))
-                {
-                    enemy._touched = count;
-                    b.Touch = true;
-                    enemy._isTouching = false;
-                    enemy.mCurrentState = Sprite.SpriteState.Rolling;
-
-                    Rectangle boxBounds = b.GetBounds();
-
-                    if (b.ID == "Floor")
-                    {
-                        enemy.touchBoxPos = blocks.Find(b).Previous.Value.GetBounds();
-                    }
-                    else
-                    {
-                        enemy.touchBoxPos = boxBounds;
-                    }
-
-                    if (enemy._position.Y > 350.0f)
-                    {
-                        enemy._position.Y = 349.0f;
-                        enemy._isTouching = false;
-                    }
-
-                    if (enemy._position.Y < 350.0f && b.TriggerZone.Contains(enemyBounds))
-                    {
-                        enemy.mCurrentState = Sprite.SpriteState.Rolling;
-                    }
-
-                    if (enemyBounds.Bottom > boxBounds.Top && enemy._position.Y < boxBounds.Top)                                                         // Hit the Bottom side
-                    {
-                        enemy.mCurrentState = Sprite.SpriteState.Rolling;
-
-                        enemy._position.Y = boxBounds.Top - enemyBounds.Height - 0.01f;
-                        enemy._velocity.Y = 0;
-
-                        if (boxBounds.Left <= enemyBounds.Right)                                                       // Hit the Left Side
-                        {
-                            enemy._direction.X = -enemy._direction.X;
-                        }
-                        else if (boxBounds.Right >= enemyBounds.Left)                                                  // Hit the Right Side
-                        {
-                            enemy._direction.X = -enemy._direction.X;
-                        }
-                    }
-                    else if (boxBounds.Top < enemyBounds.Top)                                                          // Hit the Top side
-                    {
-                        enemy._position.Y = boxBounds.Bottom + 10f;
-
-                        if (boxBounds.Left <= enemyBounds.Right)                                                       // Hit the Left Side
-                        {
-                            enemy._direction.X = -enemy._direction.X;
-                        }
-                        else if (boxBounds.Right >= enemyBounds.Left)                                                  // Hit the Right Side
-                        {
-                            enemy._direction.X = -enemy._direction.X;
-                        }
-                    }
-                }
-                else
-                {
-                    b.Touch = false;
-                }
-
-                count++;
-            }
-
-            if (player._isTouching)
-            {
-                Block x = blocks.ElementAt(player._touched);
-                Rectangle rect = x.GetBounds();
-
-                if (!playerBounds.Intersects(rect))
-                {
-                    player._isTouching = false;
-                    x.Touch = false;
-                }
-            }
-            if (enemy._isTouching)
-            {
-                Block x = blocks.ElementAt(enemy._touched);
-                Rectangle rect = x.GetBounds();
-
-                if (!enemyBounds.Intersects(rect))
-                {
-                    enemy._isTouching = false;
-                    x.Touch = false;
                 }
             }
         }
@@ -445,23 +370,11 @@ namespace Bouncer
         }
 
         /// <summary>
-        /// WIP Method: Reload Game Functionality
+        /// Reload Game
         /// </summary>
         private void LoadGame()
         {
-            camera = new Camera(GraphicsDevice.Viewport,
-               GraphicsDevice.Viewport.TitleSafeArea.Width,
-               GraphicsDevice.Viewport.TitleSafeArea.Height,
-               0.5f);
-
-            player = new Player();
-
-            camera.Move(new Vector2(400, 0));
-
-            blocks = new BlockManager(GraphicsDevice.Viewport.X,
-                                        GraphicsDevice.Viewport.X + GraphicsDevice.Viewport.Width);
-
-            gameState = GameState.Playing;
+            Initialize();
         }
     }
 }

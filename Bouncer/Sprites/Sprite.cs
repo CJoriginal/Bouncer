@@ -14,6 +14,8 @@ namespace Bouncer
         public const int MOVE_LEFT = -1;
         public const int MOVE_RIGHT = 1;
         public const float GRAVITY = 9.8f;
+        public const float MASS = 300;
+        public const float FRICTION = 0.01f;
 
         public enum SpriteState
         {
@@ -47,11 +49,10 @@ namespace Bouncer
         public float gravStrength;                  // Gravitational Strength
         public float t;
 
-        public Rectangle bounds;                    // Collision Bounds
         public Rectangle touchBoxPos;               // Touched Box Pos
 
-        public SpriteState mCurrentState;           // State of Sprite
-        public KeyboardState mPrevKeyboardState;    // Previous KeyboardState
+        public SpriteState mCurrentState;                   // State of Sprite
+        public KeyboardState mPrevKeyboardState;            // Previous KeyboardState
         public DebugState debugState = DebugState.False;    // Debug State
 
 
@@ -63,10 +64,9 @@ namespace Bouncer
         {
             get { return _texture.Height; }
         }
-
-        public Vector2 Origin
+        public Rectangle Bounds
         {
-            get { return new Vector2(_position.X + Width / 2, _position.Y + Height / 2); }
+            get { return new Rectangle((int)_position.X, (int)_position.Y, Width / 2, Height / 2); }
         }
 
         public virtual void Initialize(Texture2D texture, SpriteFont font)     // Initalise Player Variables
@@ -95,11 +95,6 @@ namespace Bouncer
 
             timePassed = 0;
 
-            bounds = new Rectangle();
-            bounds.Height = Height;
-            bounds.Width = Width;
-            bounds.Location = _position.ToPoint();
-
             _speed = Vector2.Zero;
             _direction = Vector2.Zero;
             _velocity = Vector2.Zero;
@@ -123,11 +118,11 @@ namespace Bouncer
 
             if (_accel != 0.01f && mCurrentState == SpriteState.Rolling)                                  //Physics-based Movement i.e. acceleration, gravity
             {
-                _accel -= 0.01f;
+                _accel -= FRICTION;
 
                 if (NearlyEqual(_accel, 0.01f))
                 {
-                    _accel = 0.01f;
+                    _accel = FRICTION;
                 }
             }
 
@@ -163,9 +158,6 @@ namespace Bouncer
 
             _position.X += _velocity.X;
             _position.Y += _velocity.Y;
-
-            bounds.X = (int)_position.X;                                                                //Update Bounds
-            bounds.Y = (int)_position.Y;
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)     
@@ -174,6 +166,37 @@ namespace Bouncer
                 SpriteEffects.None, 0f);
 
         }
+
+        /// <summary>
+        /// Perform a 'Jump' of the Player
+        /// </summary>
+        private void Jump()
+        {
+            if (mCurrentState != SpriteState.Jumping)
+            {
+                mCurrentState = SpriteState.Jumping;
+                _isTouching = false;
+                _speed.Y = MASS;
+                _direction.Y = 1;
+            }
+        }
+
+        /// <summary>
+        /// Calculate the jumping of the player based on the previous
+        /// KeyboardState.
+        /// </summary>
+        /// <param name="state">Current KeyboardState</param>
+        public void CheckJump(KeyboardState state)
+        {
+            if (mCurrentState == SpriteState.Rolling)
+            {
+                if (state.IsKeyDown(Keys.Space) == true && mPrevKeyboardState.IsKeyDown(Keys.Space) == false)
+                {
+                    Jump();
+                }
+            }
+        }
+
 
         /// <summary>
         /// A Helper Class to fine tune float '=' comparisons
