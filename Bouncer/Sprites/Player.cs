@@ -9,7 +9,7 @@ namespace Bouncer
 {
     class Player : Sprite
     {
-        public double score;                         // Height Player has Achieved
+        public int score;                         // Height Player has Achieved
         public bool hitBottom;
         public bool hitTop;
 
@@ -29,7 +29,7 @@ namespace Bouncer
 
             mPrevKeyboardState = currKeyboard;
 
-            score = (double)Math.Abs(_position.Y - _groundPosition.Y) - 5;
+            score = (int)Math.Abs(_position.Y - _groundPosition.Y) - 5;
 
             base.Update(gameTime);
         }

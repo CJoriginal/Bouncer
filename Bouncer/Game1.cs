@@ -26,13 +26,20 @@ namespace Bouncer
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont  spriteFont;
+
         Player player;
         Pathfinder finder;
         Enemy enemy;
         Camera camera;
         BlockManager blocks;
-        Block tarBlock;
+
         GameState gameState;
+
+        float time;
+        float playEnemDistance;
+        int displayTime;
+        bool firstPlace;
+
 
         public Game1()
         {
@@ -69,6 +76,12 @@ namespace Bouncer
             Vector2 floorPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X,
                 GraphicsDevice.Viewport.TitleSafeArea.Y + 400);
 
+            time = 0;
+            displayTime = 0;
+            playEnemDistance = 0;
+
+            firstPlace = true;
+
             base.Initialize();
         }
 
@@ -95,8 +108,6 @@ namespace Bouncer
             enemy.Initialize(Content.Load<Texture2D>("Graphics//Enemy"), spriteFont);
 
             camera.LoadDebugBox(Content.Load<Texture2D>("Graphics//Blue Block"));
-
-            tarBlock = blocks.Last.Previous.Value;
 
             finder = new Pathfinder(50, 100);
             enemy.path = finder.FindPath(enemy._position, blocks.nextBlock, blocks);
@@ -134,16 +145,23 @@ namespace Bouncer
 
             if (gameState == GameState.Playing)
             {
-                if (gameTime.TotalGameTime.TotalSeconds > 5.0f)
+                if (time > 5.0f)
                 {
                     player.Update(gameTime);
                 }
 
                 enemy.Update(gameTime);
 
-                AdjustCamera();
+                playEnemDistance = Math.Abs(player._position.Y - enemy._position.Y);
 
-                camera.Update(gameTime, enemy._position);
+                if (player._position.Y < enemy._position.Y)
+                {
+                    camera.Update(gameTime, player._position);
+                }
+                else
+                {
+                    camera.Update(gameTime, enemy._position);
+                }
 
                 blocks.CheckList(camera.view.Bottom);
 
@@ -162,6 +180,17 @@ namespace Bouncer
                 if (enemy._position.Y > camera.view.Bottom)
                 {
                     gameState = GameState.Victory;
+                }
+
+                time += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if(player._position.Y < enemy._position.Y && playEnemDistance > 100)
+                {
+                    displayTime += (int)gameTime.ElapsedGameTime.TotalSeconds;
+                }
+                else
+                {
+                    displayTime = 0;
                 }
             }
             else
@@ -183,7 +212,14 @@ namespace Bouncer
         {
             if (gameState == GameState.Playing)
             {
-                GraphicsDevice.Clear(Color.WhiteSmoke);
+                if (time < 45.0f || time > 60.0f)
+                {
+                    GraphicsDevice.Clear(Color.WhiteSmoke);
+                }
+                else
+                {
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+                }
 
                 // TODO: Add your drawing code here
                 spriteBatch.Begin(SpriteSortMode.BackToFront,
@@ -194,26 +230,14 @@ namespace Bouncer
 
                 enemy.Draw(spriteBatch);
 
-                camera.Draw(spriteBatch, spriteFont, player.score, gameTime.TotalGameTime.Seconds, player, enemy);
+                camera.Draw(spriteBatch, spriteFont, player.score, time, player, enemy);
 
                 foreach (Block b in blocks)
                 {
                     b.Draw(spriteBatch);
                 }
 
-                if(gameTime.TotalGameTime.TotalSeconds < 5.0f && gameTime.TotalGameTime.TotalSeconds > 1.0f)
-                {
-                    if(gameTime.TotalGameTime.TotalSeconds < 3.0f)
-                    {
-                        spriteBatch.DrawString(spriteFont, "You can't catch me!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
-                        spriteBatch.DrawString(spriteFont, "Hmm ... what?", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
-                    }
-                    else
-                    {
-                        spriteBatch.DrawString(spriteFont, "Mwahaha!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
-                        spriteBatch.DrawString(spriteFont, "Oh ... ok ...", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
-                    }
-                }
+                Messages();
 
                 spriteBatch.End();
             }
@@ -228,6 +252,7 @@ namespace Bouncer
                             null);
 
                 spriteBatch.DrawString(spriteFont, "Game Over", center, Color.DarkSeaGreen);
+                spriteBatch.DrawString(spriteFont, "Score: " + player.score, new Vector2(center.X - 5.0f, center.Y + 50.0f), Color.DarkSeaGreen);
 
                 spriteBatch.End();
             }
@@ -243,13 +268,82 @@ namespace Bouncer
                             null);
 
                 spriteBatch.DrawString(spriteFont, "Victory", center, Color.Black);
-                spriteBatch.DrawString(spriteFont, "Score: " + player.score, new Vector2(center.X, center.Y + 50.0f), Color.Black);
+                spriteBatch.DrawString(spriteFont, "Score: " + player.score, new Vector2(center.X - 5.0f, center.Y + 50.0f), Color.Black);
 
                 spriteBatch.End();
             }
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// A Collection of SpriteFonts to be drawn based on Game Parameters
+        /// </summary>
+        private void Messages()
+        {
+            if (time < 5.0f && time > 1.0f)         // Intro Conversation
+            {
+                if (time < 3.0f)
+                {
+                    spriteBatch.DrawString(spriteFont, "You can't catch me!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                    spriteBatch.DrawString(spriteFont, "Hmm ... what?", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
+                }
+                else
+                {
+                    spriteBatch.DrawString(spriteFont, "Mwahaha!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                    spriteBatch.DrawString(spriteFont, "Oh ... ok ...", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
+                }
+            }
+
+            if(time > 15.0f && time < 17.0f)        // A Provocation
+            {
+                spriteBatch.DrawString(spriteFont, "So ... You can keep up... Barely!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+
+            if (time > 30.0f && time < 32.0f)       // A Provocation
+            {
+                spriteBatch.DrawString(spriteFont, "You have as much chance as there is textures in this game!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+            if (time > 45.0f && time < 47.0f)       // Swap Background from White to Blue
+            {
+                spriteBatch.DrawString(spriteFont, "Oh I know ... Hard to see, Right?!?", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+            if (time > 60.0f && time < 62.0f)       // A Provocation
+            {
+                spriteBatch.DrawString(spriteFont, "Still, here?", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+            if(time > 75.0f && time < 90.0f)        // Half Gravitational Strength
+            {
+                if (time < 77.0f)
+                {
+                    spriteBatch.DrawString(spriteFont, "Half the gravity ... Airhead!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                }
+
+                player.gravStrength = player.gravStrength / 2;
+            }
+
+
+            if (time > 90.0f && time < 92.0f)
+            {
+                spriteBatch.DrawString(spriteFont, "You realise you are just doing the same thing over and over?", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+            if (time > 105.0f && time < 107.0f)
+            {
+                spriteBatch.DrawString(spriteFont, "Oh ... you're good!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+            if(player._position.Y < enemy._position.Y && playEnemDistance > 100)
+            {
+                if (displayTime < 3.0f)
+                {
+                    spriteBatch.DrawString(spriteFont, "Impossible!!!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                }
+            }
+        }
 
         /// <summary>
         /// This function is responsible for all collision detection between the Player and Blocks.
@@ -263,9 +357,11 @@ namespace Bouncer
 
             int count = 0;
 
-            if (player.Bounds.Intersects(enemy.Bounds))                                                                    // If Enemy Catches Player, Game Over
+            if(player.Bounds.Intersects(enemy.Bounds) || enemy.Bounds.Intersects(player.Bounds))
             {
-                gameState = GameState.GameOver;
+                //._velocity = -player._velocity;
+                //enemy._velocity = -enemy._velocity;
+                CollisionForce();
             }
 
             foreach (Sprite sprite in sprites)
@@ -319,6 +415,7 @@ namespace Bouncer
                                 sprite._direction.X = -sprite._direction.X;
                             }
                         }
+
                     }
                     else
                     {
@@ -341,32 +438,22 @@ namespace Bouncer
             }
         }
 
-        private void AdjustCamera()
+        /// <summary>
+        /// Collision based on Calculated Collision Force on Sprites
+        /// </summary>
+        private void CollisionForce()
         {
-            float distance = Math.Abs(player._position.Y - enemy._position.Y);
+            Vector2 centralVel = (player.MASS * player._velocity + enemy.MASS * enemy._velocity) / (player.MASS + enemy.MASS);
 
-            if(distance > 100)
-            {
-                if (camera.Zoom != 0.1f)
-                {
-                    camera.Zoom -= 0.05f;
-                }
-                else
-                {
-                    camera.Zoom = 0.1f;
-                }
-            }
-            else
-            {
-                if (camera.Zoom != 0.5f)
-                {
-                    camera.Zoom += 0.05f;
-                }
-                else
-                {
-                    camera.Zoom = 0.5f;
-                }
-            }
+            Vector2 playerNorm = Vector2.Normalize(player._velocity);
+            player._velocity -= centralVel;
+            player._velocity = Vector2.Reflect(player._velocity, playerNorm);
+            player._velocity += centralVel;
+
+            Vector2 enemyNorm = Vector2.Normalize(enemy._velocity);
+            enemy._velocity -= centralVel;
+            enemy._velocity = Vector2.Reflect(enemy._velocity, enemyNorm);
+            enemy._velocity += centralVel;
         }
 
         /// <summary>

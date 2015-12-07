@@ -9,6 +9,8 @@ namespace Bouncer
     /// </summary>
     class Block
     {
+
+        public float MASS = 1000;
         public string ID;                           // ID of Block
         public Texture2D BlockTexture;              // Block Texture
         public Vector2 Position;                    // Position of Block

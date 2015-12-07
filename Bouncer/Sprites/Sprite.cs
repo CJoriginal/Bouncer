@@ -14,7 +14,7 @@ namespace Bouncer
         public const int MOVE_LEFT = -1;
         public const int MOVE_RIGHT = 1;
         public const float GRAVITY = 9.8f;
-        public const float MASS = 300;
+        public float MASS = 300;
         public const float FRICTION = 0.01f;
 
         public enum SpriteState
@@ -140,7 +140,7 @@ namespace Bouncer
                 _velocity.X += _direction.X * _speed.X * _accel * timePassed;
             }
 
-            if ((touchBoxPos.X > _position.X || touchBoxPos.X + touchBoxPos.Width < _position.X) && mCurrentState == SpriteState.Rolling && _position.Y < 345.0f)
+            if ((touchBoxPos.X > Bounds.Center.X || touchBoxPos.X + touchBoxPos.Width < Bounds.Center.X) && mCurrentState == SpriteState.Rolling && _position.Y < 345.0f)
             {
                 mCurrentState = SpriteState.Falling;
             }

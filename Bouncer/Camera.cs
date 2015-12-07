@@ -64,7 +64,7 @@ namespace Bouncer
         public void Draw(SpriteBatch spriteBatch, SpriteFont font, double score, float time, Player player, Enemy enemy)
         {
             string scoreText = "Score: " + score;
-            string timeText = "Time: " + time;
+            string timeText = "Time: " + (int)time;
 
             Vector2 topLeft = new Vector2(_pos.X, _pos.Y - 400);
             Vector2 topRight = new Vector2( _pos.X + 500, _pos.Y - 400);
