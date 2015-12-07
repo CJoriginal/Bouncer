@@ -12,8 +12,8 @@ namespace Bouncer.Sprites
     class Enemy: Sprite
     {
         public LinkedList<Vector2> path;
-        Vector2 curPoint;
-        Vector2 nextPoint;
+        public Vector2 curPoint;
+        public Vector2 nextPoint;
         public int movement;
         private bool foundNode;
         public float time;
@@ -102,7 +102,6 @@ namespace Bouncer.Sprites
 
                 if (curPoint.X < _position.X)
                 {
-                    _direction = Vector2.Zero;
                     _direction.X = MOVE_LEFT;
                     _rotation += 10.0f;
                     if (_accel < 1.0f)
@@ -116,7 +115,6 @@ namespace Bouncer.Sprites
                 }
                 else
                 {
-                    _direction = Vector2.Zero;
                     _direction.X = MOVE_RIGHT;
                     _rotation += -10.0f;
                     if (_accel < 1.0f)
@@ -142,7 +140,7 @@ namespace Bouncer.Sprites
                     _velocity.Y = 7.5f;
                 }
 
-                _position.Y += _velocity.Y;
+                _position += _velocity;
                 t = t + this.timePassed;
 
                 if (!NearlyEqual(_accel, 0.01f)) { _accel -= 0.01f; }
@@ -184,8 +182,16 @@ namespace Bouncer.Sprites
 
             if (mCurrentState == SpriteState.Rolling)
             {
-                if (_position.Y > curPoint.Y && distance < 150.0f && jumpLimit <= 0.0f)
+                if (_position.Y > curPoint.Y && distance < 260.0f && jumpLimit <= 0.0f)
                 {
+                    if(_position.X < curPoint.X)
+                    {
+                        _velocity.X = 2.6f;
+                    }
+                    else
+                    {
+                        _velocity.X = -2.6f;
+                    }
                     Jump();
                 }
             }

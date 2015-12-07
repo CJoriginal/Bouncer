@@ -111,7 +111,10 @@ namespace Bouncer.AI
 
             foreach(Node n in closedList)
             {
-                path.AddLast(n.Position);
+                if (n.Parent != null)
+                {
+                    path.AddLast(n.Parent.Position);
+                }
             }
 
             openList.Clear();
@@ -138,20 +141,23 @@ namespace Bouncer.AI
         private List<Node> IsContained(List<Node> nodes, BlockManager blocks)
         {
             List<Node> confirmedNodes = new List<Node>();
+            Node preNode = new Node(Vector2.Zero);
 
             foreach (Node n in nodes)
             {
+                if(confirmedNodes.Count != 0 && preNode == nodes[0] || preNode == nodes[1])
+                {
+                    break;
+                }
                 foreach (Block b in blocks)
                 {
-                    if(confirmedNodes.Count != 0)
-                    {
-                        break;
-                    }
+
                     if(b.TriggerZone.X < n.Position.X && b.TriggerZone.Right > n.Position.X)
                     {
                         if (b.TriggerZone.Y < n.Position.Y && b.TriggerZone.Bottom > n.Position.Y)
                         {
                             confirmedNodes.Add(n);
+                            preNode = n;
                         }
                     }
                 }
@@ -171,12 +177,10 @@ namespace Bouncer.AI
         {
             List<Node> proposedLocations = new List<Node>()
             {
-                new Node(new Vector2(x - 350, y - 200.0f )),       // Top Left
-                new Node(new Vector2(x + 350, y - 200.0f )),       // Top Right
+                new Node(new Vector2(x - 270, y - 150.0f )),       // Top Left
+                new Node(new Vector2(x + 270, y - 150.0f )),       // Top Right
                 new Node(new Vector2(x - Width, y)),            // Left Node
                 new Node(new Vector2(x + Width, y)),            // Right Node
-                new Node(new Vector2(x - 270, y + 200.0f )),       // Top Left
-                new Node(new Vector2(x + 270, y + 200.0f )),       // Top Right
             };
 
             return IsContained(proposedLocations, blocks);

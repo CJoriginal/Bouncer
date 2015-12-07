@@ -21,7 +21,8 @@ namespace Bouncer
 
         private List<Texture2D> blockTextures;
 
-        private float[] xLoc = {150.0f, 300.0f, 450.0f, 600.0f, 750.0f, 900.0f, 1050.0f};
+        //private float[] xLoc = {150.0f, 300.0f, 450.0f, 600.0f, 750.0f, 900.0f, 1050.0f};
+        private float[] xLoc = {150.0f, 600.0f, 1050.0f};
 
         public Vector2 nextBlock
         {
@@ -67,39 +68,35 @@ namespace Bouncer
 
             Block b = new Block();
 
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[3], 200.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], 250.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[0], 50.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[0], 100.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[3], -100.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], -50.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[6], -250.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[2], -200.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[0], -250.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], -350.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[3], -400.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[2], -500.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], -550.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], -650.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[3], -700.0f), 0f, "Block " + blockCount);
-            blockCount++;
-            this.AddFirst(b);
-            b = new Block();
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[5], -850.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[0], -800.0f), 0f, "Block " + blockCount);
             blockCount++;
             this.AddFirst(b);
             b = new Block();
@@ -122,8 +119,6 @@ namespace Bouncer
 
                 Random rand = new Random();
 
-                int check = rand.Next(0, 1);
-
                 float y = this.First.Value.Position.Y - 150.0f;
 
                 float x;
@@ -131,9 +126,9 @@ namespace Bouncer
 
                 do                                                              // Generate X Location based on the previous and neighbour block, including distance constraint.
                 {
-                    x = xLoc[rand.Next(0, 6)];
+                    x = xLoc[rand.Next(0, 3)];
                     distance = Math.Abs(x - prev.Position.X);
-                } while (x == b.Position.X || x == prev.Position.X || distance < 300.0f || distance > 450.0f);
+                } while (x == b.Position.X || x == prev.Position.X || distance != 450.0f);
 
                 string id = "Block " + blockCount;
 
@@ -143,18 +138,6 @@ namespace Bouncer
                                    id);
 
                 this.AddFirst(newBlock);
-
-                if(check == 1)                                                  // Todo: Multi-Blocks per level.
-                {
-                    y = this.First.Value.Position.Y;
-
-                    newBlock.Initialize(blockTextures.First(),
-                                   new Vector2(x + 300.0f, y),
-                                   0.0f,
-                                   id);
-
-                    this.AddFirst(newBlock);
-                }
 
                 blockCount++;
             }

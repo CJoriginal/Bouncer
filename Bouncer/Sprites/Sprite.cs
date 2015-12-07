@@ -132,11 +132,11 @@ namespace Bouncer
             }
 
 
-            if (_velocity.X > 2.6f)
+            if (_velocity.X > 2.8f)
             {
                 _velocity.X -= 0.1f;
             }
-            else if(_velocity.X < -2.6f)
+            else if(_velocity.X < -2.8f)
             {
                 _velocity.X += 0.1f;
             }
@@ -170,20 +170,7 @@ namespace Bouncer
 
         public virtual void Draw(SpriteBatch spriteBatch)     
         {
-            if (debugState == DebugState.True)                                                          // Debug Mode
-            {
-                Vector2 jumpLeft = new Vector2(_position.X - 250, _position.Y - 200);
-                Vector2 jumpRight = new Vector2(_position.X + 250, _position.Y - 200);
-
-                spriteBatch.Draw(_texture, jumpLeft, null, Color.Green, _rotation, _origin, 1f,
-                    SpriteEffects.None, 0f);
-                spriteBatch.Draw(_texture, jumpRight, null, Color.Green, _rotation, _origin, 1f,
-                    SpriteEffects.None, 0f);
-            }
-
             spriteBatch.Draw(_texture, _position, null, Color.White, _rotation, _origin, 1f,
-                SpriteEffects.None, 0f);
-            spriteBatch.Draw(_texture, new Vector2(bounds.X, bounds.Bottom), null, Color.ForestGreen, _rotation, _origin, 1f,
                 SpriteEffects.None, 0f);
 
         }

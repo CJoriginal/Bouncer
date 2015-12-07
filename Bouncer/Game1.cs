@@ -19,7 +19,8 @@ namespace Bouncer
         enum GameState
         {
             Playing, 
-            GameOver
+            GameOver,
+            Victory
         }
 
         GraphicsDeviceManager graphics;
@@ -99,9 +100,8 @@ namespace Bouncer
 
             tarBlock = blocks.Last.Previous.Value;
 
-            finder = new Pathfinder(player._texture.Height, player._texture.Width);
+            finder = new Pathfinder(50, 100);
             enemy.path = finder.FindPath(enemy._position, blocks.nextBlock, blocks);
-            finder = null;
         }
 
         /// <summary>
@@ -136,31 +136,34 @@ namespace Bouncer
 
             if (gameState == GameState.Playing)
             {
-                player.Update(gameTime);
-
                 if (gameTime.TotalGameTime.TotalSeconds > 5.0f)
                 {
-                    if (enemy.time > 8.0f || enemy.Path.Count == 0)
-                    {
-                        finder = new Pathfinder(player._texture.Height, player._texture.Width);
-                        enemy.path = finder.FindPath(enemy._position, blocks.nextBlock, blocks);
-                        finder = null;
-                        enemy.time = 0;
-                    }
-                    enemy.Update(gameTime);
+                    player.Update(gameTime);
                 }
+
+                enemy.Update(gameTime);
 
                 AdjustCamera();
 
-                camera.Update(gameTime, player._position);
+                camera.Update(gameTime, enemy._position);
 
                 blocks.CheckList(camera.view.Bottom);
 
+                if(enemy.Path.Count < 5)
+                {
+                    enemy.path = finder.FindPath(enemy.nextPoint, blocks.nextBlock, blocks);
+                }
+
                 CollisionDetection();
 
-                if (player._position.Y > camera.view.Bottom)
+                if (player._position.Y > camera.view.Bottom) 
                 {
-                    gameState = GameState.GameOver;
+                   gameState = GameState.GameOver;
+                }
+
+                if (enemy._position.Y > camera.view.Bottom)
+                {
+                    gameState = GameState.Victory;
                 }
             }
             else
@@ -202,7 +205,7 @@ namespace Bouncer
 
                 spriteBatch.End();
             }
-            else
+            else if(gameState == GameState.GameOver)
             {
                 GraphicsDevice.Clear(Color.IndianRed);
 
@@ -216,7 +219,22 @@ namespace Bouncer
 
                 spriteBatch.End();
             }
+            else
+            {
 
+                GraphicsDevice.Clear(Color.Green);
+
+                Vector2 center = new Vector2(GraphicsDevice.Viewport.Bounds.Center.X - 75, GraphicsDevice.Viewport.Bounds.Center.Y - 50);
+
+                spriteBatch.Begin(SpriteSortMode.BackToFront,
+                            null, null, null, null, null,
+                            null);
+
+                spriteBatch.DrawString(spriteFont, "Victory", center, Color.Black);
+                spriteBatch.DrawString(spriteFont, "Score: " + player.score, new Vector2(center.X, center.Y + 50.0f), Color.Black);
+
+                spriteBatch.End();
+            }
             base.Draw(gameTime);
         }
 
