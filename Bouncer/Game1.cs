@@ -38,8 +38,6 @@ namespace Bouncer
         float time;
         float playEnemDistance;
         int displayTime;
-        bool firstPlace;
-
 
         public Game1()
         {
@@ -79,8 +77,6 @@ namespace Bouncer
             time = 0;
             displayTime = 0;
             playEnemDistance = 0;
-
-            firstPlace = true;
 
             base.Initialize();
         }
@@ -226,18 +222,19 @@ namespace Bouncer
                             null, null, null, null, null,
                             camera.GetTransformation());
 
+
                 player.Draw(spriteBatch);
 
                 enemy.Draw(spriteBatch);
 
                 camera.Draw(spriteBatch, spriteFont, player.score, time, player, enemy);
 
+                Messages();
+
                 foreach (Block b in blocks)
                 {
                     b.Draw(spriteBatch);
                 }
-
-                Messages();
 
                 spriteBatch.End();
             }
@@ -253,6 +250,8 @@ namespace Bouncer
 
                 spriteBatch.DrawString(spriteFont, "Game Over", center, Color.DarkSeaGreen);
                 spriteBatch.DrawString(spriteFont, "Score: " + player.score, new Vector2(center.X - 5.0f, center.Y + 50.0f), Color.DarkSeaGreen);
+                spriteBatch.DrawString(spriteFont, "Press Enter to Restart", new Vector2(center.X - 40.0f, center.Y + 100.0f), Color.DarkSeaGreen);
+                spriteBatch.DrawString(spriteFont, "Or ESC to Exit", new Vector2(center.X - 20.0f, center.Y + 130.0f), Color.DarkSeaGreen);
 
                 spriteBatch.End();
             }
@@ -269,6 +268,8 @@ namespace Bouncer
 
                 spriteBatch.DrawString(spriteFont, "Victory", center, Color.Black);
                 spriteBatch.DrawString(spriteFont, "Score: " + player.score, new Vector2(center.X - 5.0f, center.Y + 50.0f), Color.Black);
+                spriteBatch.DrawString(spriteFont, "Press Enter to Restart", new Vector2(center.X - 40.0f, center.Y + 100.0f), Color.Black);
+                spriteBatch.DrawString(spriteFont, "Or ESC to Exit", new Vector2(center.X - 20.0f, center.Y + 130.0f), Color.Black);
 
                 spriteBatch.End();
             }
@@ -294,15 +295,26 @@ namespace Bouncer
                 }
             }
 
-            if(time > 15.0f && time < 17.0f)        // A Provocation
+            if(time < 8.0f && time > 5.0f)
             {
-                spriteBatch.DrawString(spriteFont, "So ... You can keep up... Barely!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                spriteBatch.DrawString(spriteFont, "Use A and D to Move. Space to Jump!", new Vector2(player._position.X - 40.0f, player._position.Y - 100.0f), Color.Black);
             }
 
-
-            if (time > 30.0f && time < 32.0f)       // A Provocation
+            if (time > 15.0f && time < 17.0f)        // A Provocation
             {
-                spriteBatch.DrawString(spriteFont, "You have as much chance as there is textures in this game!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                spriteBatch.DrawString(spriteFont, "You have as much chance as there is textures in this game!", new Vector2(enemy._position.X - 250.0f, enemy._position.Y - 100.0f), Color.Black);
+            }
+
+            if (time > 30.0f && time < 45.0f)
+            {
+                if (time < 42.0f)
+                {
+                    spriteBatch.DrawString(spriteFont, "Who is who?", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                }
+
+                Texture2D tex = player._texture;
+                player._texture = enemy._texture;
+                enemy._texture = tex;
             }
 
             if (time > 45.0f && time < 47.0f)       // Swap Background from White to Blue
@@ -322,13 +334,15 @@ namespace Bouncer
                     spriteBatch.DrawString(spriteFont, "Half the gravity ... Airhead!", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
                 }
 
-                player.gravStrength = player.gravStrength / 2;
+                player.GRAVITY = 4.9f;
+                enemy.GRAVITY = 4.9f;
             }
-
 
             if (time > 90.0f && time < 92.0f)
             {
                 spriteBatch.DrawString(spriteFont, "You realise you are just doing the same thing over and over?", new Vector2(enemy._position.X - 40.0f, enemy._position.Y - 100.0f), Color.Black);
+                player.GRAVITY = 9.8f;
+                enemy.GRAVITY = 9.8f;
             }
 
             if (time > 105.0f && time < 107.0f)
@@ -359,7 +373,7 @@ namespace Bouncer
 
             if(player.Bounds.Intersects(enemy.Bounds) || enemy.Bounds.Intersects(player.Bounds))
             {
-                //._velocity = -player._velocity;
+                //player._velocity = -player._velocity;
                 //enemy._velocity = -enemy._velocity;
                 CollisionForce();
             }

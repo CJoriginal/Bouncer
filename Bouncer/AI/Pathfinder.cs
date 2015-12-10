@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Bouncer.AI
 {
@@ -65,7 +63,7 @@ namespace Bouncer.AI
 
             while (openList.Count > 0)                              // Begin Algorithm whilst Start Node is being found
             {
-                var lowest = openList.Min(l => l.F);                // Grab the Node with the lowest F-Cost
+                int lowest = openList.Min(l => l.F);                // Grab the Node with the lowest F-Cost
                 current = openList.First(l => l.F == lowest);
 
                 closedList.Add(current);                            // Add Current Node to Closed List

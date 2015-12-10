@@ -67,7 +67,7 @@ namespace Bouncer
             string timeText = "Time: " + (int)time;
 
             Vector2 topLeft = new Vector2(_pos.X, _pos.Y - 400);
-            Vector2 topRight = new Vector2( _pos.X + 500, _pos.Y - 400);
+            Vector2 topRight = new Vector2( _pos.X + 550, _pos.Y - 400);
 
             spriteBatch.DrawString(font, scoreText, topRight, Color.ForestGreen);
             spriteBatch.DrawString(font, timeText, new Vector2(topRight.X, topRight.Y + 30), Color.ForestGreen);

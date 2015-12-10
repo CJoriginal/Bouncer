@@ -13,7 +13,7 @@ namespace Bouncer
         public const int SPRITE_SPEED = 3;
         public const int MOVE_LEFT = -1;
         public const int MOVE_RIGHT = 1;
-        public const float GRAVITY = 9.8f;
+        public float GRAVITY = 9.8f;
         public float MASS = 300;
         public const float FRICTION = 0.01f;
 

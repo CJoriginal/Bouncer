@@ -85,11 +85,6 @@ namespace Bouncer.Sprites
 
         /// <summary>
         /// Controls Movement 
-        /// 
-        /// Todo:
-        /// 
-        /// 1. Add Algorithmic Controls
-        /// 2. Ensure smooth movement between nodes.
         /// </summary>
         private void Movement(GameTime gameTime)
         {
