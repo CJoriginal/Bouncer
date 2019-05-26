@@ -206,7 +206,7 @@ namespace Bouncer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            if (gameState == GameState.Playing)
+            if (gameState == GameState.Playing)                                                             // Playing Screen
             {
                 if (time < 45.0f || time > 60.0f)
                 {
@@ -238,7 +238,7 @@ namespace Bouncer
 
                 spriteBatch.End();
             }
-            else if(gameState == GameState.GameOver)
+            else if(gameState == GameState.GameOver)                                                        // Game Over Screen
             {
                 GraphicsDevice.Clear(Color.IndianRed);
 
@@ -255,7 +255,7 @@ namespace Bouncer
 
                 spriteBatch.End();
             }
-            else
+            else                                                                                            // Victory Screen
             {
 
                 GraphicsDevice.Clear(Color.Green);

@@ -60,7 +60,7 @@ namespace Bouncer
         {
             Floor f = new Floor();
 
-            f.Initialize(blockTextures.Last(), floorPosition, 0.0f, "Floor");
+            f.Initialize(blockTextures.Last(), floorPosition, 0.0f, "Floor");                                       // Initialise the Floor Block
 
             this.AddFirst(f);
 
@@ -68,7 +68,7 @@ namespace Bouncer
 
             Block b = new Block();
 
-            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], 250.0f), 0f, "Block " + blockCount);
+            b.Initialize(blockTextures.First(), new Vector2(xLoc[1], 250.0f), 0f, "Block " + blockCount);           // Initialise the first 9 blocks
             blockCount++;
             this.AddFirst(b);
             b = new Block();
@@ -110,7 +110,7 @@ namespace Bouncer
         {
             Block b = this.Last();                                              // Grab Bottom Block
 
-            if(b.Position.Y > viewBottom + 100.0f)                                       // If the Block is below the view space, remove and replace
+            if(b.Position.Y > viewBottom + 100.0f)                              // If the Block is below the view space, remove and replace
             {
                 Block prev = this.First();                                      // Grab the previous block
 

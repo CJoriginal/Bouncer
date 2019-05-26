@@ -107,7 +107,7 @@ namespace Bouncer.AI
 
             LinkedList<Vector2> path = new LinkedList<Vector2>();                                               // Place the path into a List of Vector2s
 
-            foreach(Node n in closedList)
+            foreach(Node n in closedList)                                                                       // Create the List using the Parents of the Nodes
             {
                 if (n.Parent != null)
                 {
@@ -135,7 +135,12 @@ namespace Bouncer.AI
             return Math.Abs((int)tarNode.X - (int)curNode.X) + Math.Abs((int)tarNode.Y - (int)curNode.Y);
         }
 
-
+        /// <summary>
+        /// Check the Adjacent nodes to ensure they are within the trigger zones
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
         private List<Node> IsContained(List<Node> nodes, BlockManager blocks)
         {
             List<Node> confirmedNodes = new List<Node>();
@@ -143,7 +148,7 @@ namespace Bouncer.AI
 
             foreach (Node n in nodes)
             {
-                if(confirmedNodes.Count != 0 && preNode == nodes[0] || preNode == nodes[1])
+                if(confirmedNodes.Count != 0 && preNode == nodes[0] || preNode == nodes[1])             // Check that a Jump Triggerzone has been found. If true, break.
                 {
                     break;
                 }
@@ -175,8 +180,8 @@ namespace Bouncer.AI
         {
             List<Node> proposedLocations = new List<Node>()
             {
-                new Node(new Vector2(x - 270, y - 150.0f )),       // Top Left
-                new Node(new Vector2(x + 270, y - 150.0f )),       // Top Right
+                new Node(new Vector2(x - 270, y - 150.0f )),    // Top Left
+                new Node(new Vector2(x + 270, y - 150.0f )),    // Top Right
                 new Node(new Vector2(x - Width, y)),            // Left Node
                 new Node(new Vector2(x + Width, y)),            // Right Node
             };

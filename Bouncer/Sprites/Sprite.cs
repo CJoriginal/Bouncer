@@ -10,7 +10,7 @@ namespace Bouncer
     /// </summary>
     class Sprite
     {
-        public const int SPRITE_SPEED = 3;
+        public const int SPRITE_SPEED = 3;          // Physics Properties
         public const int MOVE_LEFT = -1;
         public const int MOVE_RIGHT = 1;
         public float GRAVITY = 9.8f;
@@ -64,12 +64,17 @@ namespace Bouncer
         {
             get { return _texture.Height; }
         }
-        public Rectangle Bounds
+        public Rectangle Bounds                     // Bounds of the Sprite
         {
             get { return new Rectangle((int)_position.X, (int)_position.Y, Width / 2, Height / 2); }
         }
 
-        public virtual void Initialize(Texture2D texture, SpriteFont font)     // Initalise Player Variables
+        /// <summary>
+        /// Initialise the Sprite
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="font"></param>
+        public virtual void Initialize(Texture2D texture, SpriteFont font)     
         {
             _texture = texture;
 
@@ -100,6 +105,10 @@ namespace Bouncer
             _velocity = Vector2.Zero;
         }
 
+        /// <summary>
+        /// Update the Sprite
+        /// </summary>
+        /// <param name="gameTime"></param>
         public virtual void Update(GameTime gameTime)
         {
             timePassed = (float)gameTime.ElapsedGameTime.Milliseconds * 0.001f;
@@ -160,6 +169,10 @@ namespace Bouncer
             _position.Y += _velocity.Y;
         }
 
+        /// <summary>
+        /// Draw the Sprite
+        /// </summary>
+        /// <param name="spriteBatch"></param>
         public virtual void Draw(SpriteBatch spriteBatch)     
         {
             spriteBatch.Draw(_texture, _position, null, Color.White, _rotation, _origin, 1f,
@@ -168,7 +181,7 @@ namespace Bouncer
         }
 
         /// <summary>
-        /// Perform a 'Jump' of the Player
+        /// Perform a 'Jump' of the Sprite
         /// </summary>
         private void Jump()
         {
@@ -182,7 +195,7 @@ namespace Bouncer
         }
 
         /// <summary>
-        /// Calculate the jumping of the player based on the previous
+        /// Calculate the jumping of the Sprite
         /// KeyboardState.
         /// </summary>
         /// <param name="state">Current KeyboardState</param>
@@ -206,8 +219,7 @@ namespace Bouncer
         /// <returns> True if within range</returns>
         public static bool NearlyEqual(float f1, float f2)
         {
-            // Equal if they are within 0.00001 of each other
-            return Math.Abs(f1 - f2) < 0.00001;
+            return Math.Abs(f1 - f2) < 0.00001;                  // Equal if they are within 0.00001 of each other
         }
     }
 }

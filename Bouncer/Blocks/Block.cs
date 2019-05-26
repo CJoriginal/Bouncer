@@ -10,13 +10,14 @@ namespace Bouncer
     class Block
     {
 
-        public float MASS = 1000;
+        public float MASS = 1000;                   // Mass of block
         public string ID;                           // ID of Block
         public Texture2D BlockTexture;              // Block Texture
         public Vector2 Position;                    // Position of Block
         public float Angle;                         // Angle of Block
         public bool Active;                         // Active?
         public bool Touch;                          // Is being touched?
+
         public int Width                            // Width of Block
         {
             get { return BlockTexture.Width; }
@@ -27,12 +28,19 @@ namespace Bouncer
             get { return BlockTexture.Height; }
             set { }
         }
-        public Rectangle TriggerZone
+        public Rectangle TriggerZone                //Triggerzone of Block
         {
             get { return new Rectangle((int)Position.X, (int)Position.Y - 100, Width, 100); }
         }
 
-        public virtual void Initialize(Texture2D texture, Vector2 position, float angle, string id)     // Initalise Player Variables
+        /// <summary>
+        /// Initialise Block
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="position"></param>
+        /// <param name="angle"></param>
+        /// <param name="id"></param>
+        public virtual void Initialize(Texture2D texture, Vector2 position, float angle, string id)
         {
             BlockTexture = texture;
 
@@ -47,7 +55,11 @@ namespace Bouncer
             ID = id;
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch)      // Draw onto screen
+        /// <summary>
+        /// Draw Block using the SpriteBatch
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(BlockTexture, Position, null, Color.White, Angle, Vector2.Zero, 1f,
                 SpriteEffects.None, 0f);

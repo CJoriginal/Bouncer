@@ -12,10 +12,10 @@ namespace Bouncer
     /// </summary>
     class Camera
     {
-        private const float zoomUpperLimit = 1.5f;
+        private const float zoomUpperLimit = 1.5f;  // Zoom Limits
         private const float zoomLowerLimit = .5f;
 
-        private float _zoom;
+        private float _zoom;                        // Member Variables
         private Matrix _transform;
         private Vector2 _pos;
         private float _rotation;
@@ -27,7 +27,13 @@ namespace Bouncer
         public Rectangle view;                     // View of Box
         public Texture2D box;
 
-
+        /// <summary>
+        /// Initialise the Camera
+        /// </summary>
+        /// <param name="viewport"></param>
+        /// <param name="worldWidth"></param>
+        /// <param name="worldHeight"></param>
+        /// <param name="initialZoom"></param>
         public Camera(Viewport viewport, int worldWidth,
             int worldHeight, float initialZoom)
         {
@@ -43,11 +49,20 @@ namespace Bouncer
             view.Height = viewport.Height;
         }
 
+        /// <summary>
+        /// Load Debug Texture
+        /// </summary>
+        /// <param name="tex"></param>
         public void LoadDebugBox(Texture2D tex)
         {
             box = tex;
         }
 
+        /// <summary>
+        /// Update the Camera
+        /// </summary>
+        /// <param name="gameTime"></param>
+        /// <param name="playerPosition"></param>
         public void Update(GameTime gameTime, Vector2 playerPosition)
         {
             if(view.Y > playerPosition.Y)
@@ -61,6 +76,15 @@ namespace Bouncer
             }
         }
 
+        /// <summary>
+        /// Draw the Camera 
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        /// <param name="font"></param>
+        /// <param name="score"></param>
+        /// <param name="time"></param>
+        /// <param name="player"></param>
+        /// <param name="enemy"></param>
         public void Draw(SpriteBatch spriteBatch, SpriteFont font, double score, float time, Player player, Enemy enemy)
         {
             string scoreText = "Score: " + score;
@@ -72,9 +96,9 @@ namespace Bouncer
             spriteBatch.DrawString(font, scoreText, topRight, Color.ForestGreen);
             spriteBatch.DrawString(font, timeText, new Vector2(topRight.X, topRight.Y + 30), Color.ForestGreen);
 
-            if (player.debugState == Sprite.DebugState.True)                                                                                        // DEBUG INFORMATION
+            if (player.debugState == Sprite.DebugState.True)                                                                                            // DEBUG INFORMATION
             {
-                spriteBatch.DrawString(font, "Player Debug", new Vector2(topRight.X, topRight.Y + 60), Color.Red);                                         // PLAYER DEBUG
+                spriteBatch.DrawString(font, "Player Debug", new Vector2(topRight.X, topRight.Y + 60), Color.Red);                                      // PLAYER DEBUG
                 spriteBatch.DrawString(font, "Player Pos: " + player._position, new Vector2(topRight.X - 50, topRight.Y + 90), Color.Red);
                 spriteBatch.DrawString(font, "Camera Pos: " + Pos, new Vector2(topRight.X, topRight.Y + 120), Color.Red);
                 spriteBatch.DrawString(font, "Accel: " + player._accel, new Vector2(topRight.X, topRight.Y + 150), Color.Red);
@@ -91,7 +115,7 @@ namespace Bouncer
                 spriteBatch.DrawString(font, "Hit Top?: " + player.hitTop, new Vector2(topRight.X, topRight.Y + 420), Color.Red);
                 spriteBatch.DrawString(font, "Hit Bottom?: " + player.hitBottom, new Vector2(topRight.X, topRight.Y + 450), Color.Red);
 
-                spriteBatch.DrawString(font, "Enemy Debug", new Vector2(topLeft.X, topLeft.Y + 60), Color.DarkBlue);                                         // ENEMY DEBUG
+                spriteBatch.DrawString(font, "Enemy Debug", new Vector2(topLeft.X, topLeft.Y + 60), Color.DarkBlue);                                    // ENEMY DEBUG
                 spriteBatch.DrawString(font, "Enemy Pos: " + enemy._position, new Vector2(topLeft.X, topLeft.Y + 90), Color.DarkBlue);
                 spriteBatch.DrawString(font, "Path Length: " + enemy.Path.Count, new Vector2(topLeft.X, topLeft.Y + 120), Color.DarkBlue);
                 spriteBatch.DrawString(font, "Status: " + enemy.mCurrentState.ToString(), new Vector2(topLeft.X, topLeft.Y + 150), Color.DarkBlue);
@@ -175,7 +199,7 @@ namespace Bouncer
         /// <summary>
         /// Get the Transformation Matrix of the Camera
         /// </summary>
-        /// <returns>Transformation Matrix</returns>
+        /// <returns></returns>
         public Matrix GetTransformation()
         {
             _transform =

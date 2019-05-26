@@ -7,12 +7,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Bouncer
 {
+    /// <summary>
+    /// A class to represent the Player
+    /// </summary>
     class Player : Sprite
     {
         public int score;                         // Height Player has Achieved
         public bool hitBottom;
         public bool hitTop;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Player()
         {
             this._position = new Vector2(50, 350);
@@ -20,6 +26,10 @@ namespace Bouncer
             hitBottom = false; hitTop = false;
         }
 
+        /// <summary>
+        /// Update the Player
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
             KeyboardState currKeyboard = Keyboard.GetState();
